@@ -3,9 +3,7 @@ import {
   IsEmail,
   IsOptional,
   IsEnum,
-  IsNumber,
   MinLength,
-  MaxLength,
 } from 'class-validator';
 import { Role } from 'src/generated/enums';
 
