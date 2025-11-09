@@ -49,7 +49,10 @@ export const AnyNull = runtime.objectEnumValues.instances.AnyNull
 
 
 export const ModelName = {
-  User: 'User'
+  User: 'User',
+  Produit: 'Produit',
+  Commande: 'Commande',
+  CommandeProduit: 'CommandeProduit'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -89,6 +92,58 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const ProduitScalarFieldEnum = {
+  id: 'id',
+  nom: 'nom',
+  type: 'type',
+  sousType: 'sousType',
+  description: 'description',
+  quantiteDisponible: 'quantiteDisponible',
+  unite: 'unite',
+  prixUnitaire: 'prixUnitaire',
+  dateRecolte: 'dateRecolte',
+  datePeremption: 'datePeremption',
+  imageUrl: 'imageUrl',
+  statut: 'statut',
+  conditionsStockage: 'conditionsStockage',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  paysanId: 'paysanId'
+} as const
+
+export type ProduitScalarFieldEnum = (typeof ProduitScalarFieldEnum)[keyof typeof ProduitScalarFieldEnum]
+
+
+export const CommandeScalarFieldEnum = {
+  id: 'id',
+  produitRecherche: 'produitRecherche',
+  quantiteTotal: 'quantiteTotal',
+  prixUnitaire: 'prixUnitaire',
+  territoire: 'territoire',
+  statut: 'statut',
+  messageCollecteur: 'messageCollecteur',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  collecteurId: 'collecteurId'
+} as const
+
+export type CommandeScalarFieldEnum = (typeof CommandeScalarFieldEnum)[keyof typeof CommandeScalarFieldEnum]
+
+
+export const CommandeProduitScalarFieldEnum = {
+  id: 'id',
+  quantiteAccordee: 'quantiteAccordee',
+  prixUnitaire: 'prixUnitaire',
+  statutLigne: 'statutLigne',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  commandeId: 'commandeId',
+  produitId: 'produitId'
+} as const
+
+export type CommandeProduitScalarFieldEnum = (typeof CommandeProduitScalarFieldEnum)[keyof typeof CommandeProduitScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -118,4 +173,37 @@ export const UserOrderByRelevanceFieldEnum = {
 } as const
 
 export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
+
+
+export const ProduitOrderByRelevanceFieldEnum = {
+  id: 'id',
+  nom: 'nom',
+  sousType: 'sousType',
+  description: 'description',
+  imageUrl: 'imageUrl',
+  conditionsStockage: 'conditionsStockage',
+  paysanId: 'paysanId'
+} as const
+
+export type ProduitOrderByRelevanceFieldEnum = (typeof ProduitOrderByRelevanceFieldEnum)[keyof typeof ProduitOrderByRelevanceFieldEnum]
+
+
+export const CommandeOrderByRelevanceFieldEnum = {
+  id: 'id',
+  produitRecherche: 'produitRecherche',
+  territoire: 'territoire',
+  messageCollecteur: 'messageCollecteur',
+  collecteurId: 'collecteurId'
+} as const
+
+export type CommandeOrderByRelevanceFieldEnum = (typeof CommandeOrderByRelevanceFieldEnum)[keyof typeof CommandeOrderByRelevanceFieldEnum]
+
+
+export const CommandeProduitOrderByRelevanceFieldEnum = {
+  id: 'id',
+  commandeId: 'commandeId',
+  produitId: 'produitId'
+} as const
+
+export type CommandeProduitOrderByRelevanceFieldEnum = (typeof CommandeProduitOrderByRelevanceFieldEnum)[keyof typeof CommandeProduitOrderByRelevanceFieldEnum]
 

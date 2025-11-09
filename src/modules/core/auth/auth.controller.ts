@@ -17,19 +17,19 @@ import { User } from 'src/generated/client';
 export class AuthController {
   constructor(private readonly authService: AuthService, private readonly userService :UserService) {}
 
-  @Post('login')
+  @Post('signin')
   async login(@Body() authBody: LoginDto) {
     return this.authService.login(authBody);
     // return authBody;
   }
 
-  @Post('register')
+  @Post('signup')
   async register(@Body() data: RegisterDto) {
     return this.authService.register(data);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get()
+  @Get("me")
   async authenticate(@Request() req : any) {
     return req.user;
   }

@@ -25,3 +25,56 @@ export const Role = {
 } as const
 
 export type Role = (typeof Role)[keyof typeof Role]
+
+
+export const ProduitType = {
+  grain: 'grain',
+  legumineuse: 'legumineuse',
+  tubercule: 'tubercule',
+  fruit: 'fruit',
+  legume: 'legume',
+  epice: 'epice',
+  autre: 'autre'
+} as const
+
+export type ProduitType = (typeof ProduitType)[keyof typeof ProduitType]
+
+
+export const Unite = {
+  kg: 'kg',
+  tonne: 'tonne',
+  sac: 'sac',
+  litre: 'litre'
+} as const
+
+export type Unite = (typeof Unite)[keyof typeof Unite]
+
+
+export const ProduitStatut = {
+  disponible: 'disponible',
+  rupture: 'rupture',
+  archive: 'archive'
+} as const
+
+export type ProduitStatut = (typeof ProduitStatut)[keyof typeof ProduitStatut]
+
+
+export const CommandeStatut = {
+  en_attente: 'en_attente',
+  ouverte: 'ouverte',
+  partiellement_fournie: 'partiellement_fournie',
+  complete: 'complete',
+  acceptee: 'acceptee',
+  annulee: 'annulee'
+} as const
+
+export type CommandeStatut = (typeof CommandeStatut)[keyof typeof CommandeStatut]
+
+
+export const StatutLigne = {
+  acceptee: 'acceptee',
+  partiellement_acceptee: 'partiellement_acceptee',
+  rejetée: 'rejetée'
+} as const
+
+export type StatutLigne = (typeof StatutLigne)[keyof typeof StatutLigne]
