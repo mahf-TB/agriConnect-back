@@ -12,13 +12,33 @@ export class ProduitsService {
     return this.prisma.produit.create({ data });
   }
 
-  async findAll(params?: any) {
-    return this.prisma.produit.findMany({
+  async findAll(
+  params?: any, 
+  page = 1, 
+  limit = 2
+) {
+  const skip = (page - 1) * limit;
+
+  const [produits, total] = await Promise.all([
+    this.prisma.produit.findMany({
       where: params,
       include: { paysan: true },
       orderBy: { createdAt: 'desc' },
-    });
-  }
+      skip,
+      take: limit,
+    }),
+    this.prisma.produit.count({ where: params })
+  ]);
+
+  return {
+    data: produits,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+    totalItems: total
+  };
+}
+
 
   async findOne(id: string) {
     const produit = await this.prisma.produit.findUnique({ where: { id } });

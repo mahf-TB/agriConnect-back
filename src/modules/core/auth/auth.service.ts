@@ -13,7 +13,7 @@ export class AuthService {
   ) {}
   async login(data: LoginDto) {
     // Find user by email and validate password
-    const user = await this.validateUser(data.email, data.password);
+    const user = await this.validateUser(data.email, data.mot_de_passe);
     // Generate JWT token
     return this.authenticateUser(user);
   }
@@ -21,7 +21,7 @@ export class AuthService {
   async register(data: RegisterDto) {
     const user = await this.userService.findByEmail(data.email);
     if (user) throw new UnauthorizedException('Email already in use');
-    const newUser = this.userService.create(data);
+    const newUser = await this.userService.create(data);
     return this.authenticateUser(newUser);
   }
 
