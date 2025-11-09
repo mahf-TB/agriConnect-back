@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "/Users/Bienvenu/Projects/NestJS/agriconnect-back/src/generated",
+      "value": "D:\\PROJET\\VITE_REACT\\agriConnect-back\\src\\generated",
       "fromEnvVar": null
     },
     "config": {
@@ -32,12 +32,12 @@ const config: runtime.GetPrismaClientConfig = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin",
+        "value": "windows",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/Bienvenu/Projects/NestJS/agriconnect-back/prisma/schema.prisma",
+    "sourceFilePath": "D:\\PROJET\\VITE_REACT\\agriConnect-back\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "../../prisma",
