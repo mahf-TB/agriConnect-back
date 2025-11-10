@@ -7,6 +7,8 @@ import {
   Param,
   Patch,
   Post,
+  Query,
+  Req,
   Request,
   UploadedFile,
   UseGuards,
@@ -37,13 +39,25 @@ export class ProduitsController {
   }
 
   @Get()
-  findAll() {
-    return this.produitService.findAll();
+  findAll(@Req() req, @Query() query) {
+    console.log(query);
+
+    return this.produitService.findAll(
+      req,
+      {
+        type: query?.type,
+        statut: query?.statut,
+        paysanId: query?.paysanId,
+        search: query?.search,
+      },
+      Number(query.page),
+      Number(query.limit),
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.produitService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req) {
+    return this.produitService.findOne(id, req);
   }
 
   @Patch(':id')

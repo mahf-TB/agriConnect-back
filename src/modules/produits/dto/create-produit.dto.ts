@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsString,
   IsEnum,
@@ -24,12 +25,14 @@ export class CreateProduitDto {
   description?: string;
 
   @IsNumber({ maxDecimalPlaces: 2 })
+  @Type(() => Number)
   quantiteDisponible: number;
 
   @IsEnum(Unite)
   unite: Unite;
 
   @IsNumber({ maxDecimalPlaces: 2 })
+  @Type(() => Number)
   prixUnitaire: number;
 
   @IsDateString()
@@ -38,7 +41,6 @@ export class CreateProduitDto {
   @IsOptional()
   @IsDateString()
   datePeremption?: Date;
-
 
   @IsOptional()
   @IsEnum(ProduitStatut)
@@ -54,12 +56,11 @@ export class CreateProduitDto {
 
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   latitude?: number;
 
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   longitude?: number;
-
-  @IsString()
-  paysanId: string;
 }

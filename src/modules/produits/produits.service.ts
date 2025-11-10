@@ -6,8 +6,11 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
 import { UpdateProduitDto } from './dto/update-produit.dto';
-import { ProduitStatut } from 'src/generated/enums';
-import { mapProduitsToClean } from 'src/common/mappers/produit.mapper';
+import { ProduitStatut, ProduitType } from 'src/generated/enums';
+import {
+  mapProduitsToClean,
+  mapProduitToClean,
+} from 'src/common/mappers/produit.mapper';
 import { PaginatedProduits } from 'src/common/types/produit.types';
 import { paginate } from 'src/common/utils/pagination';
 
@@ -15,7 +18,9 @@ import { paginate } from 'src/common/utils/pagination';
 export class ProduitsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(data: CreateProduitDto & { paysanId: string , imageUrl?: string }) {
+  async create(
+    data: CreateProduitDto & { paysanId: string; imageUrl?: string },
+  ) {
     if (data.quantiteDisponible <= 0) {
       throw new BadRequestException(
         'La quantité disponible doit être supérieure à 0',
@@ -27,7 +32,17 @@ export class ProduitsService {
     return this.prisma.produit.create({ data });
   }
 
-  async findAll(params?: any, page = 1, limit = 2): Promise<PaginatedProduits> {
+  async findAll(
+    req: Request,
+    params?:  {
+      type?: ProduitType;
+      statut?: ProduitStatut;
+      paysanId?: string;
+      search?: string;
+    },
+    page = 1,
+    limit = 2,
+  ): Promise<PaginatedProduits> {
     const skip = (page - 1) * limit;
 
     const [produits, total] = await Promise.all([
@@ -40,15 +55,18 @@ export class ProduitsService {
       }),
       this.prisma.produit.count({ where: params }),
     ]);
-    const cleaned = mapProduitsToClean(produits);
+    const cleaned = mapProduitsToClean(produits, req);
 
     return paginate(cleaned, total, { page, limit });
   }
 
-  async findOne(id: string) {
-    const produit = await this.prisma.produit.findUnique({ where: { id } });
+  async findOne(id: string, req: Request) {
+    const produit = await this.prisma.produit.findUnique({
+      where: { id },
+      include: { paysan: true },
+    });
     if (!produit) throw new NotFoundException('Produit non trouvé');
-    return produit;
+    return mapProduitToClean(produit, req);
   }
 
   async update(id: string, data: UpdateProduitDto) {

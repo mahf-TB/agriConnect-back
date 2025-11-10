@@ -1,12 +1,14 @@
 import { Produit, User } from 'src/generated/client';
 import { CleanProduit } from '../types/produit.types';
 import { capitalize } from '../utils/formatters';
+import { getFullUrl } from '../utils/file';
 
 // Prisma retourne Produit + paysan (User)
 export type ProduitWithPaysan = Produit & { paysan: User };
 
 export const mapProduitToClean = (
   produit: ProduitWithPaysan,
+  req: any
 ): CleanProduit => ({
   id: produit.id,
   nom: capitalize(produit.nom),
@@ -18,7 +20,7 @@ export const mapProduitToClean = (
   prixUnitaire: Number(produit.prixUnitaire),
   dateRecolte: produit.dateRecolte,
   datePeremption: produit.datePeremption,
-  imageUrl: produit.imageUrl,
+  imageUrl: getFullUrl(req ,produit.imageUrl),
   statut: produit.statut,
   conditionsStockage: produit.conditionsStockage,
   createdAt: produit.createdAt,
@@ -41,4 +43,5 @@ export const mapProduitToClean = (
 
 export const mapProduitsToClean = (
   produits: ProduitWithPaysan[],
-): CleanProduit[] => produits.map(mapProduitToClean);
+  req : any
+): CleanProduit[] => produits.map((p) => mapProduitToClean(p, req));
