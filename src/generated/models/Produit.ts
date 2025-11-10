@@ -29,11 +29,15 @@ export type AggregateProduit = {
 export type ProduitAvgAggregateOutputType = {
   quantiteDisponible: runtime.Decimal | null
   prixUnitaire: runtime.Decimal | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
 }
 
 export type ProduitSumAggregateOutputType = {
   quantiteDisponible: runtime.Decimal | null
   prixUnitaire: runtime.Decimal | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
 }
 
 export type ProduitMinAggregateOutputType = {
@@ -50,6 +54,9 @@ export type ProduitMinAggregateOutputType = {
   imageUrl: string | null
   statut: $Enums.ProduitStatut | null
   conditionsStockage: string | null
+  localisation: string | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
   paysanId: string | null
@@ -69,6 +76,9 @@ export type ProduitMaxAggregateOutputType = {
   imageUrl: string | null
   statut: $Enums.ProduitStatut | null
   conditionsStockage: string | null
+  localisation: string | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
   createdAt: Date | null
   updatedAt: Date | null
   paysanId: string | null
@@ -88,6 +98,9 @@ export type ProduitCountAggregateOutputType = {
   imageUrl: number
   statut: number
   conditionsStockage: number
+  localisation: number
+  latitude: number
+  longitude: number
   createdAt: number
   updatedAt: number
   paysanId: number
@@ -98,11 +111,15 @@ export type ProduitCountAggregateOutputType = {
 export type ProduitAvgAggregateInputType = {
   quantiteDisponible?: true
   prixUnitaire?: true
+  latitude?: true
+  longitude?: true
 }
 
 export type ProduitSumAggregateInputType = {
   quantiteDisponible?: true
   prixUnitaire?: true
+  latitude?: true
+  longitude?: true
 }
 
 export type ProduitMinAggregateInputType = {
@@ -119,6 +136,9 @@ export type ProduitMinAggregateInputType = {
   imageUrl?: true
   statut?: true
   conditionsStockage?: true
+  localisation?: true
+  latitude?: true
+  longitude?: true
   createdAt?: true
   updatedAt?: true
   paysanId?: true
@@ -138,6 +158,9 @@ export type ProduitMaxAggregateInputType = {
   imageUrl?: true
   statut?: true
   conditionsStockage?: true
+  localisation?: true
+  latitude?: true
+  longitude?: true
   createdAt?: true
   updatedAt?: true
   paysanId?: true
@@ -157,6 +180,9 @@ export type ProduitCountAggregateInputType = {
   imageUrl?: true
   statut?: true
   conditionsStockage?: true
+  localisation?: true
+  latitude?: true
+  longitude?: true
   createdAt?: true
   updatedAt?: true
   paysanId?: true
@@ -263,6 +289,9 @@ export type ProduitGroupByOutputType = {
   imageUrl: string | null
   statut: $Enums.ProduitStatut
   conditionsStockage: string | null
+  localisation: string | null
+  latitude: runtime.Decimal | null
+  longitude: runtime.Decimal | null
   createdAt: Date
   updatedAt: Date
   paysanId: string
@@ -305,6 +334,9 @@ export type ProduitWhereInput = {
   imageUrl?: Prisma.StringNullableFilter<"Produit"> | string | null
   statut?: Prisma.EnumProduitStatutFilter<"Produit"> | $Enums.ProduitStatut
   conditionsStockage?: Prisma.StringNullableFilter<"Produit"> | string | null
+  localisation?: Prisma.StringNullableFilter<"Produit"> | string | null
+  latitude?: Prisma.DecimalNullableFilter<"Produit"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableFilter<"Produit"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"Produit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Produit"> | Date | string
   paysanId?: Prisma.StringFilter<"Produit"> | string
@@ -326,6 +358,9 @@ export type ProduitOrderByWithRelationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   statut?: Prisma.SortOrder
   conditionsStockage?: Prisma.SortOrderInput | Prisma.SortOrder
+  localisation?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   paysanId?: Prisma.SortOrder
@@ -351,6 +386,9 @@ export type ProduitWhereUniqueInput = Prisma.AtLeast<{
   imageUrl?: Prisma.StringNullableFilter<"Produit"> | string | null
   statut?: Prisma.EnumProduitStatutFilter<"Produit"> | $Enums.ProduitStatut
   conditionsStockage?: Prisma.StringNullableFilter<"Produit"> | string | null
+  localisation?: Prisma.StringNullableFilter<"Produit"> | string | null
+  latitude?: Prisma.DecimalNullableFilter<"Produit"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableFilter<"Produit"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"Produit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Produit"> | Date | string
   paysanId?: Prisma.StringFilter<"Produit"> | string
@@ -372,6 +410,9 @@ export type ProduitOrderByWithAggregationInput = {
   imageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   statut?: Prisma.SortOrder
   conditionsStockage?: Prisma.SortOrderInput | Prisma.SortOrder
+  localisation?: Prisma.SortOrderInput | Prisma.SortOrder
+  latitude?: Prisma.SortOrderInput | Prisma.SortOrder
+  longitude?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   paysanId?: Prisma.SortOrder
@@ -399,6 +440,9 @@ export type ProduitScalarWhereWithAggregatesInput = {
   imageUrl?: Prisma.StringNullableWithAggregatesFilter<"Produit"> | string | null
   statut?: Prisma.EnumProduitStatutWithAggregatesFilter<"Produit"> | $Enums.ProduitStatut
   conditionsStockage?: Prisma.StringNullableWithAggregatesFilter<"Produit"> | string | null
+  localisation?: Prisma.StringNullableWithAggregatesFilter<"Produit"> | string | null
+  latitude?: Prisma.DecimalNullableWithAggregatesFilter<"Produit"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableWithAggregatesFilter<"Produit"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Produit"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Produit"> | Date | string
   paysanId?: Prisma.StringWithAggregatesFilter<"Produit"> | string
@@ -418,6 +462,9 @@ export type ProduitCreateInput = {
   imageUrl?: string | null
   statut?: $Enums.ProduitStatut
   conditionsStockage?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   commandesProduit?: Prisma.CommandeProduitCreateNestedManyWithoutProduitInput
@@ -438,6 +485,9 @@ export type ProduitUncheckedCreateInput = {
   imageUrl?: string | null
   statut?: $Enums.ProduitStatut
   conditionsStockage?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paysanId: string
@@ -458,6 +508,9 @@ export type ProduitUpdateInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statut?: Prisma.EnumProduitStatutFieldUpdateOperationsInput | $Enums.ProduitStatut
   conditionsStockage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commandesProduit?: Prisma.CommandeProduitUpdateManyWithoutProduitNestedInput
@@ -478,6 +531,9 @@ export type ProduitUncheckedUpdateInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statut?: Prisma.EnumProduitStatutFieldUpdateOperationsInput | $Enums.ProduitStatut
   conditionsStockage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paysanId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -498,6 +554,9 @@ export type ProduitCreateManyInput = {
   imageUrl?: string | null
   statut?: $Enums.ProduitStatut
   conditionsStockage?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paysanId: string
@@ -517,6 +576,9 @@ export type ProduitUpdateManyMutationInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statut?: Prisma.EnumProduitStatutFieldUpdateOperationsInput | $Enums.ProduitStatut
   conditionsStockage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -535,6 +597,9 @@ export type ProduitUncheckedUpdateManyInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statut?: Prisma.EnumProduitStatutFieldUpdateOperationsInput | $Enums.ProduitStatut
   conditionsStockage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paysanId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -570,6 +635,9 @@ export type ProduitCountOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   statut?: Prisma.SortOrder
   conditionsStockage?: Prisma.SortOrder
+  localisation?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   paysanId?: Prisma.SortOrder
@@ -578,6 +646,8 @@ export type ProduitCountOrderByAggregateInput = {
 export type ProduitAvgOrderByAggregateInput = {
   quantiteDisponible?: Prisma.SortOrder
   prixUnitaire?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type ProduitMaxOrderByAggregateInput = {
@@ -594,6 +664,9 @@ export type ProduitMaxOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   statut?: Prisma.SortOrder
   conditionsStockage?: Prisma.SortOrder
+  localisation?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   paysanId?: Prisma.SortOrder
@@ -613,6 +686,9 @@ export type ProduitMinOrderByAggregateInput = {
   imageUrl?: Prisma.SortOrder
   statut?: Prisma.SortOrder
   conditionsStockage?: Prisma.SortOrder
+  localisation?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   paysanId?: Prisma.SortOrder
@@ -621,6 +697,8 @@ export type ProduitMinOrderByAggregateInput = {
 export type ProduitSumOrderByAggregateInput = {
   quantiteDisponible?: Prisma.SortOrder
   prixUnitaire?: Prisma.SortOrder
+  latitude?: Prisma.SortOrder
+  longitude?: Prisma.SortOrder
 }
 
 export type ProduitScalarRelationFilter = {
@@ -722,6 +800,9 @@ export type ProduitCreateWithoutPaysanInput = {
   imageUrl?: string | null
   statut?: $Enums.ProduitStatut
   conditionsStockage?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   commandesProduit?: Prisma.CommandeProduitCreateNestedManyWithoutProduitInput
@@ -741,6 +822,9 @@ export type ProduitUncheckedCreateWithoutPaysanInput = {
   imageUrl?: string | null
   statut?: $Enums.ProduitStatut
   conditionsStockage?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   commandesProduit?: Prisma.CommandeProduitUncheckedCreateNestedManyWithoutProduitInput
@@ -789,6 +873,9 @@ export type ProduitScalarWhereInput = {
   imageUrl?: Prisma.StringNullableFilter<"Produit"> | string | null
   statut?: Prisma.EnumProduitStatutFilter<"Produit"> | $Enums.ProduitStatut
   conditionsStockage?: Prisma.StringNullableFilter<"Produit"> | string | null
+  localisation?: Prisma.StringNullableFilter<"Produit"> | string | null
+  latitude?: Prisma.DecimalNullableFilter<"Produit"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.DecimalNullableFilter<"Produit"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFilter<"Produit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Produit"> | Date | string
   paysanId?: Prisma.StringFilter<"Produit"> | string
@@ -808,6 +895,9 @@ export type ProduitCreateWithoutCommandesProduitInput = {
   imageUrl?: string | null
   statut?: $Enums.ProduitStatut
   conditionsStockage?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paysan: Prisma.UserCreateNestedOneWithoutProduitsInput
@@ -827,6 +917,9 @@ export type ProduitUncheckedCreateWithoutCommandesProduitInput = {
   imageUrl?: string | null
   statut?: $Enums.ProduitStatut
   conditionsStockage?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   paysanId: string
@@ -862,6 +955,9 @@ export type ProduitUpdateWithoutCommandesProduitInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statut?: Prisma.EnumProduitStatutFieldUpdateOperationsInput | $Enums.ProduitStatut
   conditionsStockage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paysan?: Prisma.UserUpdateOneRequiredWithoutProduitsNestedInput
@@ -881,6 +977,9 @@ export type ProduitUncheckedUpdateWithoutCommandesProduitInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statut?: Prisma.EnumProduitStatutFieldUpdateOperationsInput | $Enums.ProduitStatut
   conditionsStockage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   paysanId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -900,6 +999,9 @@ export type ProduitCreateManyPaysanInput = {
   imageUrl?: string | null
   statut?: $Enums.ProduitStatut
   conditionsStockage?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -918,6 +1020,9 @@ export type ProduitUpdateWithoutPaysanInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statut?: Prisma.EnumProduitStatutFieldUpdateOperationsInput | $Enums.ProduitStatut
   conditionsStockage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commandesProduit?: Prisma.CommandeProduitUpdateManyWithoutProduitNestedInput
@@ -937,6 +1042,9 @@ export type ProduitUncheckedUpdateWithoutPaysanInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statut?: Prisma.EnumProduitStatutFieldUpdateOperationsInput | $Enums.ProduitStatut
   conditionsStockage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commandesProduit?: Prisma.CommandeProduitUncheckedUpdateManyWithoutProduitNestedInput
@@ -956,6 +1064,9 @@ export type ProduitUncheckedUpdateManyWithoutPaysanInput = {
   imageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   statut?: Prisma.EnumProduitStatutFieldUpdateOperationsInput | $Enums.ProduitStatut
   conditionsStockage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1005,6 +1116,9 @@ export type ProduitSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   imageUrl?: boolean
   statut?: boolean
   conditionsStockage?: boolean
+  localisation?: boolean
+  latitude?: boolean
+  longitude?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   paysanId?: boolean
@@ -1029,12 +1143,15 @@ export type ProduitSelectScalar = {
   imageUrl?: boolean
   statut?: boolean
   conditionsStockage?: boolean
+  localisation?: boolean
+  latitude?: boolean
+  longitude?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   paysanId?: boolean
 }
 
-export type ProduitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nom" | "type" | "sousType" | "description" | "quantiteDisponible" | "unite" | "prixUnitaire" | "dateRecolte" | "datePeremption" | "imageUrl" | "statut" | "conditionsStockage" | "createdAt" | "updatedAt" | "paysanId", ExtArgs["result"]["produit"]>
+export type ProduitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nom" | "type" | "sousType" | "description" | "quantiteDisponible" | "unite" | "prixUnitaire" | "dateRecolte" | "datePeremption" | "imageUrl" | "statut" | "conditionsStockage" | "localisation" | "latitude" | "longitude" | "createdAt" | "updatedAt" | "paysanId", ExtArgs["result"]["produit"]>
 export type ProduitInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   commandesProduit?: boolean | Prisma.Produit$commandesProduitArgs<ExtArgs>
   paysan?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1061,6 +1178,9 @@ export type $ProduitPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     imageUrl: string | null
     statut: $Enums.ProduitStatut
     conditionsStockage: string | null
+    localisation: string | null
+    latitude: runtime.Decimal | null
+    longitude: runtime.Decimal | null
     createdAt: Date
     updatedAt: Date
     paysanId: string
@@ -1448,6 +1568,9 @@ export interface ProduitFieldRefs {
   readonly imageUrl: Prisma.FieldRef<"Produit", 'String'>
   readonly statut: Prisma.FieldRef<"Produit", 'ProduitStatut'>
   readonly conditionsStockage: Prisma.FieldRef<"Produit", 'String'>
+  readonly localisation: Prisma.FieldRef<"Produit", 'String'>
+  readonly latitude: Prisma.FieldRef<"Produit", 'Decimal'>
+  readonly longitude: Prisma.FieldRef<"Produit", 'Decimal'>
   readonly createdAt: Prisma.FieldRef<"Produit", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Produit", 'DateTime'>
   readonly paysanId: Prisma.FieldRef<"Produit", 'String'>

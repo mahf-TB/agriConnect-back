@@ -45,6 +45,7 @@ export type CommandeProduitMinAggregateOutputType = {
   updatedAt: Date | null
   commandeId: string | null
   produitId: string | null
+  paysanId: string | null
 }
 
 export type CommandeProduitMaxAggregateOutputType = {
@@ -56,6 +57,7 @@ export type CommandeProduitMaxAggregateOutputType = {
   updatedAt: Date | null
   commandeId: string | null
   produitId: string | null
+  paysanId: string | null
 }
 
 export type CommandeProduitCountAggregateOutputType = {
@@ -67,6 +69,7 @@ export type CommandeProduitCountAggregateOutputType = {
   updatedAt: number
   commandeId: number
   produitId: number
+  paysanId: number
   _all: number
 }
 
@@ -90,6 +93,7 @@ export type CommandeProduitMinAggregateInputType = {
   updatedAt?: true
   commandeId?: true
   produitId?: true
+  paysanId?: true
 }
 
 export type CommandeProduitMaxAggregateInputType = {
@@ -101,6 +105,7 @@ export type CommandeProduitMaxAggregateInputType = {
   updatedAt?: true
   commandeId?: true
   produitId?: true
+  paysanId?: true
 }
 
 export type CommandeProduitCountAggregateInputType = {
@@ -112,6 +117,7 @@ export type CommandeProduitCountAggregateInputType = {
   updatedAt?: true
   commandeId?: true
   produitId?: true
+  paysanId?: true
   _all?: true
 }
 
@@ -210,6 +216,7 @@ export type CommandeProduitGroupByOutputType = {
   updatedAt: Date
   commandeId: string
   produitId: string
+  paysanId: string
   _count: CommandeProduitCountAggregateOutputType | null
   _avg: CommandeProduitAvgAggregateOutputType | null
   _sum: CommandeProduitSumAggregateOutputType | null
@@ -244,8 +251,10 @@ export type CommandeProduitWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"CommandeProduit"> | Date | string
   commandeId?: Prisma.StringFilter<"CommandeProduit"> | string
   produitId?: Prisma.StringFilter<"CommandeProduit"> | string
+  paysanId?: Prisma.StringFilter<"CommandeProduit"> | string
   commande?: Prisma.XOR<Prisma.CommandeScalarRelationFilter, Prisma.CommandeWhereInput>
   produit?: Prisma.XOR<Prisma.ProduitScalarRelationFilter, Prisma.ProduitWhereInput>
+  paysan?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type CommandeProduitOrderByWithRelationInput = {
@@ -257,8 +266,10 @@ export type CommandeProduitOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   commandeId?: Prisma.SortOrder
   produitId?: Prisma.SortOrder
+  paysanId?: Prisma.SortOrder
   commande?: Prisma.CommandeOrderByWithRelationInput
   produit?: Prisma.ProduitOrderByWithRelationInput
+  paysan?: Prisma.UserOrderByWithRelationInput
   _relevance?: Prisma.CommandeProduitOrderByRelevanceInput
 }
 
@@ -274,8 +285,10 @@ export type CommandeProduitWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"CommandeProduit"> | Date | string
   commandeId?: Prisma.StringFilter<"CommandeProduit"> | string
   produitId?: Prisma.StringFilter<"CommandeProduit"> | string
+  paysanId?: Prisma.StringFilter<"CommandeProduit"> | string
   commande?: Prisma.XOR<Prisma.CommandeScalarRelationFilter, Prisma.CommandeWhereInput>
   produit?: Prisma.XOR<Prisma.ProduitScalarRelationFilter, Prisma.ProduitWhereInput>
+  paysan?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type CommandeProduitOrderByWithAggregationInput = {
@@ -287,6 +300,7 @@ export type CommandeProduitOrderByWithAggregationInput = {
   updatedAt?: Prisma.SortOrder
   commandeId?: Prisma.SortOrder
   produitId?: Prisma.SortOrder
+  paysanId?: Prisma.SortOrder
   _count?: Prisma.CommandeProduitCountOrderByAggregateInput
   _avg?: Prisma.CommandeProduitAvgOrderByAggregateInput
   _max?: Prisma.CommandeProduitMaxOrderByAggregateInput
@@ -306,6 +320,7 @@ export type CommandeProduitScalarWhereWithAggregatesInput = {
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CommandeProduit"> | Date | string
   commandeId?: Prisma.StringWithAggregatesFilter<"CommandeProduit"> | string
   produitId?: Prisma.StringWithAggregatesFilter<"CommandeProduit"> | string
+  paysanId?: Prisma.StringWithAggregatesFilter<"CommandeProduit"> | string
 }
 
 export type CommandeProduitCreateInput = {
@@ -317,6 +332,7 @@ export type CommandeProduitCreateInput = {
   updatedAt?: Date | string
   commande: Prisma.CommandeCreateNestedOneWithoutLignesInput
   produit: Prisma.ProduitCreateNestedOneWithoutCommandesProduitInput
+  paysan: Prisma.UserCreateNestedOneWithoutCommandesFourniesInput
 }
 
 export type CommandeProduitUncheckedCreateInput = {
@@ -328,6 +344,7 @@ export type CommandeProduitUncheckedCreateInput = {
   updatedAt?: Date | string
   commandeId: string
   produitId: string
+  paysanId: string
 }
 
 export type CommandeProduitUpdateInput = {
@@ -339,6 +356,7 @@ export type CommandeProduitUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commande?: Prisma.CommandeUpdateOneRequiredWithoutLignesNestedInput
   produit?: Prisma.ProduitUpdateOneRequiredWithoutCommandesProduitNestedInput
+  paysan?: Prisma.UserUpdateOneRequiredWithoutCommandesFourniesNestedInput
 }
 
 export type CommandeProduitUncheckedUpdateInput = {
@@ -350,6 +368,7 @@ export type CommandeProduitUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commandeId?: Prisma.StringFieldUpdateOperationsInput | string
   produitId?: Prisma.StringFieldUpdateOperationsInput | string
+  paysanId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type CommandeProduitCreateManyInput = {
@@ -361,6 +380,7 @@ export type CommandeProduitCreateManyInput = {
   updatedAt?: Date | string
   commandeId: string
   produitId: string
+  paysanId: string
 }
 
 export type CommandeProduitUpdateManyMutationInput = {
@@ -381,6 +401,7 @@ export type CommandeProduitUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commandeId?: Prisma.StringFieldUpdateOperationsInput | string
   produitId?: Prisma.StringFieldUpdateOperationsInput | string
+  paysanId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type CommandeProduitListRelationFilter = {
@@ -408,6 +429,7 @@ export type CommandeProduitCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   commandeId?: Prisma.SortOrder
   produitId?: Prisma.SortOrder
+  paysanId?: Prisma.SortOrder
 }
 
 export type CommandeProduitAvgOrderByAggregateInput = {
@@ -424,6 +446,7 @@ export type CommandeProduitMaxOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   commandeId?: Prisma.SortOrder
   produitId?: Prisma.SortOrder
+  paysanId?: Prisma.SortOrder
 }
 
 export type CommandeProduitMinOrderByAggregateInput = {
@@ -435,11 +458,54 @@ export type CommandeProduitMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
   commandeId?: Prisma.SortOrder
   produitId?: Prisma.SortOrder
+  paysanId?: Prisma.SortOrder
 }
 
 export type CommandeProduitSumOrderByAggregateInput = {
   quantiteAccordee?: Prisma.SortOrder
   prixUnitaire?: Prisma.SortOrder
+}
+
+export type CommandeProduitCreateNestedManyWithoutPaysanInput = {
+  create?: Prisma.XOR<Prisma.CommandeProduitCreateWithoutPaysanInput, Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput> | Prisma.CommandeProduitCreateWithoutPaysanInput[] | Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput[]
+  connectOrCreate?: Prisma.CommandeProduitCreateOrConnectWithoutPaysanInput | Prisma.CommandeProduitCreateOrConnectWithoutPaysanInput[]
+  createMany?: Prisma.CommandeProduitCreateManyPaysanInputEnvelope
+  connect?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+}
+
+export type CommandeProduitUncheckedCreateNestedManyWithoutPaysanInput = {
+  create?: Prisma.XOR<Prisma.CommandeProduitCreateWithoutPaysanInput, Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput> | Prisma.CommandeProduitCreateWithoutPaysanInput[] | Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput[]
+  connectOrCreate?: Prisma.CommandeProduitCreateOrConnectWithoutPaysanInput | Prisma.CommandeProduitCreateOrConnectWithoutPaysanInput[]
+  createMany?: Prisma.CommandeProduitCreateManyPaysanInputEnvelope
+  connect?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+}
+
+export type CommandeProduitUpdateManyWithoutPaysanNestedInput = {
+  create?: Prisma.XOR<Prisma.CommandeProduitCreateWithoutPaysanInput, Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput> | Prisma.CommandeProduitCreateWithoutPaysanInput[] | Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput[]
+  connectOrCreate?: Prisma.CommandeProduitCreateOrConnectWithoutPaysanInput | Prisma.CommandeProduitCreateOrConnectWithoutPaysanInput[]
+  upsert?: Prisma.CommandeProduitUpsertWithWhereUniqueWithoutPaysanInput | Prisma.CommandeProduitUpsertWithWhereUniqueWithoutPaysanInput[]
+  createMany?: Prisma.CommandeProduitCreateManyPaysanInputEnvelope
+  set?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+  disconnect?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+  delete?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+  connect?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+  update?: Prisma.CommandeProduitUpdateWithWhereUniqueWithoutPaysanInput | Prisma.CommandeProduitUpdateWithWhereUniqueWithoutPaysanInput[]
+  updateMany?: Prisma.CommandeProduitUpdateManyWithWhereWithoutPaysanInput | Prisma.CommandeProduitUpdateManyWithWhereWithoutPaysanInput[]
+  deleteMany?: Prisma.CommandeProduitScalarWhereInput | Prisma.CommandeProduitScalarWhereInput[]
+}
+
+export type CommandeProduitUncheckedUpdateManyWithoutPaysanNestedInput = {
+  create?: Prisma.XOR<Prisma.CommandeProduitCreateWithoutPaysanInput, Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput> | Prisma.CommandeProduitCreateWithoutPaysanInput[] | Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput[]
+  connectOrCreate?: Prisma.CommandeProduitCreateOrConnectWithoutPaysanInput | Prisma.CommandeProduitCreateOrConnectWithoutPaysanInput[]
+  upsert?: Prisma.CommandeProduitUpsertWithWhereUniqueWithoutPaysanInput | Prisma.CommandeProduitUpsertWithWhereUniqueWithoutPaysanInput[]
+  createMany?: Prisma.CommandeProduitCreateManyPaysanInputEnvelope
+  set?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+  disconnect?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+  delete?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+  connect?: Prisma.CommandeProduitWhereUniqueInput | Prisma.CommandeProduitWhereUniqueInput[]
+  update?: Prisma.CommandeProduitUpdateWithWhereUniqueWithoutPaysanInput | Prisma.CommandeProduitUpdateWithWhereUniqueWithoutPaysanInput[]
+  updateMany?: Prisma.CommandeProduitUpdateManyWithWhereWithoutPaysanInput | Prisma.CommandeProduitUpdateManyWithWhereWithoutPaysanInput[]
+  deleteMany?: Prisma.CommandeProduitScalarWhereInput | Prisma.CommandeProduitScalarWhereInput[]
 }
 
 export type CommandeProduitCreateNestedManyWithoutProduitInput = {
@@ -530,6 +596,69 @@ export type EnumStatutLigneFieldUpdateOperationsInput = {
   set?: $Enums.StatutLigne
 }
 
+export type CommandeProduitCreateWithoutPaysanInput = {
+  id?: string
+  quantiteAccordee: runtime.Decimal | runtime.DecimalJsLike | number | string
+  prixUnitaire: runtime.Decimal | runtime.DecimalJsLike | number | string
+  statutLigne?: $Enums.StatutLigne
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  commande: Prisma.CommandeCreateNestedOneWithoutLignesInput
+  produit: Prisma.ProduitCreateNestedOneWithoutCommandesProduitInput
+}
+
+export type CommandeProduitUncheckedCreateWithoutPaysanInput = {
+  id?: string
+  quantiteAccordee: runtime.Decimal | runtime.DecimalJsLike | number | string
+  prixUnitaire: runtime.Decimal | runtime.DecimalJsLike | number | string
+  statutLigne?: $Enums.StatutLigne
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  commandeId: string
+  produitId: string
+}
+
+export type CommandeProduitCreateOrConnectWithoutPaysanInput = {
+  where: Prisma.CommandeProduitWhereUniqueInput
+  create: Prisma.XOR<Prisma.CommandeProduitCreateWithoutPaysanInput, Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput>
+}
+
+export type CommandeProduitCreateManyPaysanInputEnvelope = {
+  data: Prisma.CommandeProduitCreateManyPaysanInput | Prisma.CommandeProduitCreateManyPaysanInput[]
+  skipDuplicates?: boolean
+}
+
+export type CommandeProduitUpsertWithWhereUniqueWithoutPaysanInput = {
+  where: Prisma.CommandeProduitWhereUniqueInput
+  update: Prisma.XOR<Prisma.CommandeProduitUpdateWithoutPaysanInput, Prisma.CommandeProduitUncheckedUpdateWithoutPaysanInput>
+  create: Prisma.XOR<Prisma.CommandeProduitCreateWithoutPaysanInput, Prisma.CommandeProduitUncheckedCreateWithoutPaysanInput>
+}
+
+export type CommandeProduitUpdateWithWhereUniqueWithoutPaysanInput = {
+  where: Prisma.CommandeProduitWhereUniqueInput
+  data: Prisma.XOR<Prisma.CommandeProduitUpdateWithoutPaysanInput, Prisma.CommandeProduitUncheckedUpdateWithoutPaysanInput>
+}
+
+export type CommandeProduitUpdateManyWithWhereWithoutPaysanInput = {
+  where: Prisma.CommandeProduitScalarWhereInput
+  data: Prisma.XOR<Prisma.CommandeProduitUpdateManyMutationInput, Prisma.CommandeProduitUncheckedUpdateManyWithoutPaysanInput>
+}
+
+export type CommandeProduitScalarWhereInput = {
+  AND?: Prisma.CommandeProduitScalarWhereInput | Prisma.CommandeProduitScalarWhereInput[]
+  OR?: Prisma.CommandeProduitScalarWhereInput[]
+  NOT?: Prisma.CommandeProduitScalarWhereInput | Prisma.CommandeProduitScalarWhereInput[]
+  id?: Prisma.StringFilter<"CommandeProduit"> | string
+  quantiteAccordee?: Prisma.DecimalFilter<"CommandeProduit"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  prixUnitaire?: Prisma.DecimalFilter<"CommandeProduit"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  statutLigne?: Prisma.EnumStatutLigneFilter<"CommandeProduit"> | $Enums.StatutLigne
+  createdAt?: Prisma.DateTimeFilter<"CommandeProduit"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CommandeProduit"> | Date | string
+  commandeId?: Prisma.StringFilter<"CommandeProduit"> | string
+  produitId?: Prisma.StringFilter<"CommandeProduit"> | string
+  paysanId?: Prisma.StringFilter<"CommandeProduit"> | string
+}
+
 export type CommandeProduitCreateWithoutProduitInput = {
   id?: string
   quantiteAccordee: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -538,6 +667,7 @@ export type CommandeProduitCreateWithoutProduitInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   commande: Prisma.CommandeCreateNestedOneWithoutLignesInput
+  paysan: Prisma.UserCreateNestedOneWithoutCommandesFourniesInput
 }
 
 export type CommandeProduitUncheckedCreateWithoutProduitInput = {
@@ -548,6 +678,7 @@ export type CommandeProduitUncheckedCreateWithoutProduitInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   commandeId: string
+  paysanId: string
 }
 
 export type CommandeProduitCreateOrConnectWithoutProduitInput = {
@@ -576,20 +707,6 @@ export type CommandeProduitUpdateManyWithWhereWithoutProduitInput = {
   data: Prisma.XOR<Prisma.CommandeProduitUpdateManyMutationInput, Prisma.CommandeProduitUncheckedUpdateManyWithoutProduitInput>
 }
 
-export type CommandeProduitScalarWhereInput = {
-  AND?: Prisma.CommandeProduitScalarWhereInput | Prisma.CommandeProduitScalarWhereInput[]
-  OR?: Prisma.CommandeProduitScalarWhereInput[]
-  NOT?: Prisma.CommandeProduitScalarWhereInput | Prisma.CommandeProduitScalarWhereInput[]
-  id?: Prisma.StringFilter<"CommandeProduit"> | string
-  quantiteAccordee?: Prisma.DecimalFilter<"CommandeProduit"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  prixUnitaire?: Prisma.DecimalFilter<"CommandeProduit"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  statutLigne?: Prisma.EnumStatutLigneFilter<"CommandeProduit"> | $Enums.StatutLigne
-  createdAt?: Prisma.DateTimeFilter<"CommandeProduit"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"CommandeProduit"> | Date | string
-  commandeId?: Prisma.StringFilter<"CommandeProduit"> | string
-  produitId?: Prisma.StringFilter<"CommandeProduit"> | string
-}
-
 export type CommandeProduitCreateWithoutCommandeInput = {
   id?: string
   quantiteAccordee: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -598,6 +715,7 @@ export type CommandeProduitCreateWithoutCommandeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   produit: Prisma.ProduitCreateNestedOneWithoutCommandesProduitInput
+  paysan: Prisma.UserCreateNestedOneWithoutCommandesFourniesInput
 }
 
 export type CommandeProduitUncheckedCreateWithoutCommandeInput = {
@@ -608,6 +726,7 @@ export type CommandeProduitUncheckedCreateWithoutCommandeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   produitId: string
+  paysanId: string
 }
 
 export type CommandeProduitCreateOrConnectWithoutCommandeInput = {
@@ -636,6 +755,50 @@ export type CommandeProduitUpdateManyWithWhereWithoutCommandeInput = {
   data: Prisma.XOR<Prisma.CommandeProduitUpdateManyMutationInput, Prisma.CommandeProduitUncheckedUpdateManyWithoutCommandeInput>
 }
 
+export type CommandeProduitCreateManyPaysanInput = {
+  id?: string
+  quantiteAccordee: runtime.Decimal | runtime.DecimalJsLike | number | string
+  prixUnitaire: runtime.Decimal | runtime.DecimalJsLike | number | string
+  statutLigne?: $Enums.StatutLigne
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  commandeId: string
+  produitId: string
+}
+
+export type CommandeProduitUpdateWithoutPaysanInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantiteAccordee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  prixUnitaire?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  statutLigne?: Prisma.EnumStatutLigneFieldUpdateOperationsInput | $Enums.StatutLigne
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commande?: Prisma.CommandeUpdateOneRequiredWithoutLignesNestedInput
+  produit?: Prisma.ProduitUpdateOneRequiredWithoutCommandesProduitNestedInput
+}
+
+export type CommandeProduitUncheckedUpdateWithoutPaysanInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantiteAccordee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  prixUnitaire?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  statutLigne?: Prisma.EnumStatutLigneFieldUpdateOperationsInput | $Enums.StatutLigne
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commandeId?: Prisma.StringFieldUpdateOperationsInput | string
+  produitId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type CommandeProduitUncheckedUpdateManyWithoutPaysanInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  quantiteAccordee?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  prixUnitaire?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  statutLigne?: Prisma.EnumStatutLigneFieldUpdateOperationsInput | $Enums.StatutLigne
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commandeId?: Prisma.StringFieldUpdateOperationsInput | string
+  produitId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
 export type CommandeProduitCreateManyProduitInput = {
   id?: string
   quantiteAccordee: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -644,6 +807,7 @@ export type CommandeProduitCreateManyProduitInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   commandeId: string
+  paysanId: string
 }
 
 export type CommandeProduitUpdateWithoutProduitInput = {
@@ -654,6 +818,7 @@ export type CommandeProduitUpdateWithoutProduitInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commande?: Prisma.CommandeUpdateOneRequiredWithoutLignesNestedInput
+  paysan?: Prisma.UserUpdateOneRequiredWithoutCommandesFourniesNestedInput
 }
 
 export type CommandeProduitUncheckedUpdateWithoutProduitInput = {
@@ -664,6 +829,7 @@ export type CommandeProduitUncheckedUpdateWithoutProduitInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commandeId?: Prisma.StringFieldUpdateOperationsInput | string
+  paysanId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type CommandeProduitUncheckedUpdateManyWithoutProduitInput = {
@@ -674,6 +840,7 @@ export type CommandeProduitUncheckedUpdateManyWithoutProduitInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   commandeId?: Prisma.StringFieldUpdateOperationsInput | string
+  paysanId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type CommandeProduitCreateManyCommandeInput = {
@@ -684,6 +851,7 @@ export type CommandeProduitCreateManyCommandeInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   produitId: string
+  paysanId: string
 }
 
 export type CommandeProduitUpdateWithoutCommandeInput = {
@@ -694,6 +862,7 @@ export type CommandeProduitUpdateWithoutCommandeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   produit?: Prisma.ProduitUpdateOneRequiredWithoutCommandesProduitNestedInput
+  paysan?: Prisma.UserUpdateOneRequiredWithoutCommandesFourniesNestedInput
 }
 
 export type CommandeProduitUncheckedUpdateWithoutCommandeInput = {
@@ -704,6 +873,7 @@ export type CommandeProduitUncheckedUpdateWithoutCommandeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   produitId?: Prisma.StringFieldUpdateOperationsInput | string
+  paysanId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type CommandeProduitUncheckedUpdateManyWithoutCommandeInput = {
@@ -714,6 +884,7 @@ export type CommandeProduitUncheckedUpdateManyWithoutCommandeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   produitId?: Prisma.StringFieldUpdateOperationsInput | string
+  paysanId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -727,8 +898,10 @@ export type CommandeProduitSelect<ExtArgs extends runtime.Types.Extensions.Inter
   updatedAt?: boolean
   commandeId?: boolean
   produitId?: boolean
+  paysanId?: boolean
   commande?: boolean | Prisma.CommandeDefaultArgs<ExtArgs>
   produit?: boolean | Prisma.ProduitDefaultArgs<ExtArgs>
+  paysan?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["commandeProduit"]>
 
 
@@ -742,12 +915,14 @@ export type CommandeProduitSelectScalar = {
   updatedAt?: boolean
   commandeId?: boolean
   produitId?: boolean
+  paysanId?: boolean
 }
 
-export type CommandeProduitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quantiteAccordee" | "prixUnitaire" | "statutLigne" | "createdAt" | "updatedAt" | "commandeId" | "produitId", ExtArgs["result"]["commandeProduit"]>
+export type CommandeProduitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "quantiteAccordee" | "prixUnitaire" | "statutLigne" | "createdAt" | "updatedAt" | "commandeId" | "produitId" | "paysanId", ExtArgs["result"]["commandeProduit"]>
 export type CommandeProduitInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   commande?: boolean | Prisma.CommandeDefaultArgs<ExtArgs>
   produit?: boolean | Prisma.ProduitDefaultArgs<ExtArgs>
+  paysan?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $CommandeProduitPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -755,6 +930,7 @@ export type $CommandeProduitPayload<ExtArgs extends runtime.Types.Extensions.Int
   objects: {
     commande: Prisma.$CommandePayload<ExtArgs>
     produit: Prisma.$ProduitPayload<ExtArgs>
+    paysan: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -765,6 +941,7 @@ export type $CommandeProduitPayload<ExtArgs extends runtime.Types.Extensions.Int
     updatedAt: Date
     commandeId: string
     produitId: string
+    paysanId: string
   }, ExtArgs["result"]["commandeProduit"]>
   composites: {}
 }
@@ -1107,6 +1284,7 @@ export interface Prisma__CommandeProduitClient<T, Null = never, ExtArgs extends 
   readonly [Symbol.toStringTag]: "PrismaPromise"
   commande<T extends Prisma.CommandeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CommandeDefaultArgs<ExtArgs>>): Prisma.Prisma__CommandeClient<runtime.Types.Result.GetResult<Prisma.$CommandePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   produit<T extends Prisma.ProduitDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProduitDefaultArgs<ExtArgs>>): Prisma.Prisma__ProduitClient<runtime.Types.Result.GetResult<Prisma.$ProduitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  paysan<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1144,6 +1322,7 @@ export interface CommandeProduitFieldRefs {
   readonly updatedAt: Prisma.FieldRef<"CommandeProduit", 'DateTime'>
   readonly commandeId: Prisma.FieldRef<"CommandeProduit", 'String'>
   readonly produitId: Prisma.FieldRef<"CommandeProduit", 'String'>
+  readonly paysanId: Prisma.FieldRef<"CommandeProduit", 'String'>
 }
     
 

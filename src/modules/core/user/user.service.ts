@@ -61,4 +61,12 @@ export class UserService {
   async remove(id: string) {
     return await this.prisma.user.delete({ where: { id } });
   }
+  
+    // Mettre à jour l'avatar d'un utilisateur
+  async updateAvatar(userId: string, avatarPath: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { avatar: avatarPath },
+    });
+  }
 }

@@ -33,7 +33,8 @@ model User {
   updatedAt           DateTime           @updatedAt
 
   produits            Produit[]
-  commandesCollecteur Commande[]        
+  commandesFournies   CommandeProduit[]
+  commandesCollecteur Commande[]
 
 
   @@index([role])
@@ -66,6 +67,9 @@ model Produit {
   imageUrl           String?            @db.VarChar(255)
   statut             ProduitStatut      @default(disponible)
   conditionsStockage String?
+  localisation       String?            @db.VarChar(100)
+  latitude           Decimal?           @db.Decimal(10, 8)
+  longitude          Decimal?           @db.Decimal(11, 8)
 
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
@@ -153,6 +157,8 @@ model CommandeProduit {
   commande         Commande    @relation(fields: [commandeId], references: [id])
   produitId        String
   produit          Produit     @relation(fields: [produitId], references: [id])
+  paysanId         String
+  paysan           User        @relation(fields: [paysanId], references: [id])
 }
 
 // ENUM

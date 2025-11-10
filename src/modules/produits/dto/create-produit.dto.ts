@@ -1,6 +1,12 @@
-import { IsString, IsEnum, IsOptional, IsNumber, IsDateString, IsDecimal } from 'class-validator';
-import { ProduitType , Unite, ProduitStatut} from 'src/generated/enums';
-
+import {
+  IsString,
+  IsEnum,
+  IsOptional,
+  IsNumber,
+  IsDateString,
+  IsDecimal,
+} from 'class-validator';
+import { ProduitType, Unite, ProduitStatut } from 'src/generated/enums';
 
 export class CreateProduitDto {
   @IsString()
@@ -33,9 +39,6 @@ export class CreateProduitDto {
   @IsDateString()
   datePeremption?: Date;
 
-  @IsOptional()
-  @IsString()
-  imageUrl?: string;
 
   @IsOptional()
   @IsEnum(ProduitStatut)
@@ -44,6 +47,18 @@ export class CreateProduitDto {
   @IsOptional()
   @IsString()
   conditionsStockage?: string;
+
+  @IsOptional()
+  @IsString()
+  localisation?: string;
+
+  @IsOptional()
+  @IsNumber()
+  latitude?: number;
+
+  @IsOptional()
+  @IsNumber()
+  longitude?: number;
 
   @IsString()
   paysanId: string;

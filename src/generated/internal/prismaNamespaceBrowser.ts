@@ -106,6 +106,9 @@ export const ProduitScalarFieldEnum = {
   imageUrl: 'imageUrl',
   statut: 'statut',
   conditionsStockage: 'conditionsStockage',
+  localisation: 'localisation',
+  latitude: 'latitude',
+  longitude: 'longitude',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   paysanId: 'paysanId'
@@ -138,7 +141,8 @@ export const CommandeProduitScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   commandeId: 'commandeId',
-  produitId: 'produitId'
+  produitId: 'produitId',
+  paysanId: 'paysanId'
 } as const
 
 export type CommandeProduitScalarFieldEnum = (typeof CommandeProduitScalarFieldEnum)[keyof typeof CommandeProduitScalarFieldEnum]
@@ -182,6 +186,7 @@ export const ProduitOrderByRelevanceFieldEnum = {
   description: 'description',
   imageUrl: 'imageUrl',
   conditionsStockage: 'conditionsStockage',
+  localisation: 'localisation',
   paysanId: 'paysanId'
 } as const
 
@@ -202,7 +207,8 @@ export type CommandeOrderByRelevanceFieldEnum = (typeof CommandeOrderByRelevance
 export const CommandeProduitOrderByRelevanceFieldEnum = {
   id: 'id',
   commandeId: 'commandeId',
-  produitId: 'produitId'
+  produitId: 'produitId',
+  paysanId: 'paysanId'
 } as const
 
 export type CommandeProduitOrderByRelevanceFieldEnum = (typeof CommandeProduitOrderByRelevanceFieldEnum)[keyof typeof CommandeProduitOrderByRelevanceFieldEnum]

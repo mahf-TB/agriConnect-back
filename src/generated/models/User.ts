@@ -301,6 +301,7 @@ export type UserWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   produits?: Prisma.ProduitListRelationFilter
+  commandesFournies?: Prisma.CommandeProduitListRelationFilter
   commandesCollecteur?: Prisma.CommandeListRelationFilter
 }
 
@@ -321,6 +322,7 @@ export type UserOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   produits?: Prisma.ProduitOrderByRelationAggregateInput
+  commandesFournies?: Prisma.CommandeProduitOrderByRelationAggregateInput
   commandesCollecteur?: Prisma.CommandeOrderByRelationAggregateInput
   _relevance?: Prisma.UserOrderByRelevanceInput
 }
@@ -345,6 +347,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   produits?: Prisma.ProduitListRelationFilter
+  commandesFournies?: Prisma.CommandeProduitListRelationFilter
   commandesCollecteur?: Prisma.CommandeListRelationFilter
 }, "id" | "email">
 
@@ -409,6 +412,7 @@ export type UserCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   produits?: Prisma.ProduitCreateNestedManyWithoutPaysanInput
+  commandesFournies?: Prisma.CommandeProduitCreateNestedManyWithoutPaysanInput
   commandesCollecteur?: Prisma.CommandeCreateNestedManyWithoutCollecteurInput
 }
 
@@ -429,6 +433,7 @@ export type UserUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   produits?: Prisma.ProduitUncheckedCreateNestedManyWithoutPaysanInput
+  commandesFournies?: Prisma.CommandeProduitUncheckedCreateNestedManyWithoutPaysanInput
   commandesCollecteur?: Prisma.CommandeUncheckedCreateNestedManyWithoutCollecteurInput
 }
 
@@ -449,6 +454,7 @@ export type UserUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   produits?: Prisma.ProduitUpdateManyWithoutPaysanNestedInput
+  commandesFournies?: Prisma.CommandeProduitUpdateManyWithoutPaysanNestedInput
   commandesCollecteur?: Prisma.CommandeUpdateManyWithoutCollecteurNestedInput
 }
 
@@ -469,6 +475,7 @@ export type UserUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   produits?: Prisma.ProduitUncheckedUpdateManyWithoutPaysanNestedInput
+  commandesFournies?: Prisma.CommandeProduitUncheckedUpdateManyWithoutPaysanNestedInput
   commandesCollecteur?: Prisma.CommandeUncheckedUpdateManyWithoutCollecteurNestedInput
 }
 
@@ -657,6 +664,20 @@ export type UserUpdateOneRequiredWithoutCommandesCollecteurNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCommandesCollecteurInput, Prisma.UserUpdateWithoutCommandesCollecteurInput>, Prisma.UserUncheckedUpdateWithoutCommandesCollecteurInput>
 }
 
+export type UserCreateNestedOneWithoutCommandesFourniesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommandesFourniesInput, Prisma.UserUncheckedCreateWithoutCommandesFourniesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommandesFourniesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCommandesFourniesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCommandesFourniesInput, Prisma.UserUncheckedCreateWithoutCommandesFourniesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCommandesFourniesInput
+  upsert?: Prisma.UserUpsertWithoutCommandesFourniesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCommandesFourniesInput, Prisma.UserUpdateWithoutCommandesFourniesInput>, Prisma.UserUncheckedUpdateWithoutCommandesFourniesInput>
+}
+
 export type UserCreateWithoutProduitsInput = {
   id?: string
   nom: string
@@ -673,6 +694,7 @@ export type UserCreateWithoutProduitsInput = {
   statut?: $Enums.Statut
   createdAt?: Date | string
   updatedAt?: Date | string
+  commandesFournies?: Prisma.CommandeProduitCreateNestedManyWithoutPaysanInput
   commandesCollecteur?: Prisma.CommandeCreateNestedManyWithoutCollecteurInput
 }
 
@@ -692,6 +714,7 @@ export type UserUncheckedCreateWithoutProduitsInput = {
   statut?: $Enums.Statut
   createdAt?: Date | string
   updatedAt?: Date | string
+  commandesFournies?: Prisma.CommandeProduitUncheckedCreateNestedManyWithoutPaysanInput
   commandesCollecteur?: Prisma.CommandeUncheckedCreateNestedManyWithoutCollecteurInput
 }
 
@@ -727,6 +750,7 @@ export type UserUpdateWithoutProduitsInput = {
   statut?: Prisma.EnumStatutFieldUpdateOperationsInput | $Enums.Statut
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commandesFournies?: Prisma.CommandeProduitUpdateManyWithoutPaysanNestedInput
   commandesCollecteur?: Prisma.CommandeUpdateManyWithoutCollecteurNestedInput
 }
 
@@ -746,6 +770,7 @@ export type UserUncheckedUpdateWithoutProduitsInput = {
   statut?: Prisma.EnumStatutFieldUpdateOperationsInput | $Enums.Statut
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  commandesFournies?: Prisma.CommandeProduitUncheckedUpdateManyWithoutPaysanNestedInput
   commandesCollecteur?: Prisma.CommandeUncheckedUpdateManyWithoutCollecteurNestedInput
 }
 
@@ -766,6 +791,7 @@ export type UserCreateWithoutCommandesCollecteurInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   produits?: Prisma.ProduitCreateNestedManyWithoutPaysanInput
+  commandesFournies?: Prisma.CommandeProduitCreateNestedManyWithoutPaysanInput
 }
 
 export type UserUncheckedCreateWithoutCommandesCollecteurInput = {
@@ -785,6 +811,7 @@ export type UserUncheckedCreateWithoutCommandesCollecteurInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   produits?: Prisma.ProduitUncheckedCreateNestedManyWithoutPaysanInput
+  commandesFournies?: Prisma.CommandeProduitUncheckedCreateNestedManyWithoutPaysanInput
 }
 
 export type UserCreateOrConnectWithoutCommandesCollecteurInput = {
@@ -820,6 +847,7 @@ export type UserUpdateWithoutCommandesCollecteurInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   produits?: Prisma.ProduitUpdateManyWithoutPaysanNestedInput
+  commandesFournies?: Prisma.CommandeProduitUpdateManyWithoutPaysanNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCommandesCollecteurInput = {
@@ -839,6 +867,103 @@ export type UserUncheckedUpdateWithoutCommandesCollecteurInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   produits?: Prisma.ProduitUncheckedUpdateManyWithoutPaysanNestedInput
+  commandesFournies?: Prisma.CommandeProduitUncheckedUpdateManyWithoutPaysanNestedInput
+}
+
+export type UserCreateWithoutCommandesFourniesInput = {
+  id?: string
+  nom: string
+  prenom: string
+  email: string
+  telephone: string
+  mot_de_passe: string
+  role: $Enums.Role
+  avatar?: string | null
+  adresse?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  statut?: $Enums.Statut
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  produits?: Prisma.ProduitCreateNestedManyWithoutPaysanInput
+  commandesCollecteur?: Prisma.CommandeCreateNestedManyWithoutCollecteurInput
+}
+
+export type UserUncheckedCreateWithoutCommandesFourniesInput = {
+  id?: string
+  nom: string
+  prenom: string
+  email: string
+  telephone: string
+  mot_de_passe: string
+  role: $Enums.Role
+  avatar?: string | null
+  adresse?: string | null
+  localisation?: string | null
+  latitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  statut?: $Enums.Statut
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  produits?: Prisma.ProduitUncheckedCreateNestedManyWithoutPaysanInput
+  commandesCollecteur?: Prisma.CommandeUncheckedCreateNestedManyWithoutCollecteurInput
+}
+
+export type UserCreateOrConnectWithoutCommandesFourniesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommandesFourniesInput, Prisma.UserUncheckedCreateWithoutCommandesFourniesInput>
+}
+
+export type UserUpsertWithoutCommandesFourniesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCommandesFourniesInput, Prisma.UserUncheckedUpdateWithoutCommandesFourniesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCommandesFourniesInput, Prisma.UserUncheckedCreateWithoutCommandesFourniesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCommandesFourniesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCommandesFourniesInput, Prisma.UserUncheckedUpdateWithoutCommandesFourniesInput>
+}
+
+export type UserUpdateWithoutCommandesFourniesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.StringFieldUpdateOperationsInput | string
+  prenom?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  mot_de_passe?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adresse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  statut?: Prisma.EnumStatutFieldUpdateOperationsInput | $Enums.Statut
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  produits?: Prisma.ProduitUpdateManyWithoutPaysanNestedInput
+  commandesCollecteur?: Prisma.CommandeUpdateManyWithoutCollecteurNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCommandesFourniesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  nom?: Prisma.StringFieldUpdateOperationsInput | string
+  prenom?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  telephone?: Prisma.StringFieldUpdateOperationsInput | string
+  mot_de_passe?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.EnumRoleFieldUpdateOperationsInput | $Enums.Role
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  adresse?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  localisation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  latitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  longitude?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  statut?: Prisma.EnumStatutFieldUpdateOperationsInput | $Enums.Statut
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  produits?: Prisma.ProduitUncheckedUpdateManyWithoutPaysanNestedInput
+  commandesCollecteur?: Prisma.CommandeUncheckedUpdateManyWithoutCollecteurNestedInput
 }
 
 
@@ -848,11 +973,13 @@ export type UserUncheckedUpdateWithoutCommandesCollecteurInput = {
 
 export type UserCountOutputType = {
   produits: number
+  commandesFournies: number
   commandesCollecteur: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   produits?: boolean | UserCountOutputTypeCountProduitsArgs
+  commandesFournies?: boolean | UserCountOutputTypeCountCommandesFourniesArgs
   commandesCollecteur?: boolean | UserCountOutputTypeCountCommandesCollecteurArgs
 }
 
@@ -871,6 +998,13 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountProduitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProduitWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCommandesFourniesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CommandeProduitWhereInput
 }
 
 /**
@@ -898,6 +1032,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   produits?: boolean | Prisma.User$produitsArgs<ExtArgs>
+  commandesFournies?: boolean | Prisma.User$commandesFourniesArgs<ExtArgs>
   commandesCollecteur?: boolean | Prisma.User$commandesCollecteurArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
@@ -925,6 +1060,7 @@ export type UserSelectScalar = {
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nom" | "prenom" | "email" | "telephone" | "mot_de_passe" | "role" | "avatar" | "adresse" | "localisation" | "latitude" | "longitude" | "statut" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   produits?: boolean | Prisma.User$produitsArgs<ExtArgs>
+  commandesFournies?: boolean | Prisma.User$commandesFourniesArgs<ExtArgs>
   commandesCollecteur?: boolean | Prisma.User$commandesCollecteurArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -933,6 +1069,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "User"
   objects: {
     produits: Prisma.$ProduitPayload<ExtArgs>[]
+    commandesFournies: Prisma.$CommandeProduitPayload<ExtArgs>[]
     commandesCollecteur: Prisma.$CommandePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1292,6 +1429,7 @@ readonly fields: UserFieldRefs;
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   produits<T extends Prisma.User$produitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$produitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProduitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  commandesFournies<T extends Prisma.User$commandesFourniesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$commandesFourniesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommandeProduitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   commandesCollecteur<T extends Prisma.User$commandesCollecteurArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$commandesCollecteurArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CommandePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1701,6 +1839,30 @@ export type User$produitsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.ProduitScalarFieldEnum | Prisma.ProduitScalarFieldEnum[]
+}
+
+/**
+ * User.commandesFournies
+ */
+export type User$commandesFourniesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CommandeProduit
+   */
+  select?: Prisma.CommandeProduitSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CommandeProduit
+   */
+  omit?: Prisma.CommandeProduitOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CommandeProduitInclude<ExtArgs> | null
+  where?: Prisma.CommandeProduitWhereInput
+  orderBy?: Prisma.CommandeProduitOrderByWithRelationInput | Prisma.CommandeProduitOrderByWithRelationInput[]
+  cursor?: Prisma.CommandeProduitWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CommandeProduitScalarFieldEnum | Prisma.CommandeProduitScalarFieldEnum[]
 }
 
 /**
