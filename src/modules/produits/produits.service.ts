@@ -34,7 +34,7 @@ export class ProduitsService {
 
   async findAll(
     req: Request,
-    params?:  {
+    params?: {
       type?: ProduitType;
       statut?: ProduitStatut;
       paysanId?: string;
@@ -45,9 +45,23 @@ export class ProduitsService {
   ): Promise<PaginatedProduits> {
     const skip = (page - 1) * limit;
 
+    // 🧩 Construction dynamique des filtres Prisma
+    const where: any = {};
+
+    if (params?.type) where.type = params.type;
+    if (params?.statut) where.statut = params.statut;
+    if (params?.paysanId) where.paysanId = params.paysanId;
+    if (params?.search) {
+      where.OR = [
+        { nom: { contains: params.search, mode: 'insensitive' } },
+        { description: { contains: params.search, mode: 'insensitive' } },
+        { sousType: { contains: params.search, mode: 'insensitive' } },
+      ];
+    }
+    // ⚙️ Requête paginée
     const [produits, total] = await Promise.all([
       this.prisma.produit.findMany({
-        where: params,
+        where,
         include: { paysan: true },
         orderBy: { createdAt: 'desc' },
         skip,

@@ -23,7 +23,7 @@ const config: runtime.GetPrismaClientConfig = {
       "value": "prisma-client"
     },
     "output": {
-      "value": "D:\\PROJET\\VITE_REACT\\agriConnect-back\\src\\generated",
+      "value": "/Users/Bienvenu/Projects/NestJS/agriconnect-back/src/generated",
       "fromEnvVar": null
     },
     "config": {
@@ -32,12 +32,20 @@ const config: runtime.GetPrismaClientConfig = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "windows"
+      },
+      {
+        "fromEnvVar": null,
+        "value": "darwin"
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "D:\\PROJET\\VITE_REACT\\agriConnect-back\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/Bienvenu/Projects/NestJS/agriconnect-back/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativePath": "../../prisma",
@@ -47,6 +55,7 @@ const config: runtime.GetPrismaClientConfig = {
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -55,8 +64,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated\"\n}\n\ndatasource db {\n  provider     = \"mysql\"\n  url          = env(\"DATABASE_URL\")\n  relationMode = \"prisma\"\n}\n\nmodel User {\n  id           String   @id @default(cuid())\n  nom          String\n  prenom       String\n  email        String   @unique\n  telephone    String\n  mot_de_passe String\n  role         Role\n  avatar       String?  @db.VarChar(255)\n  adresse      String?  @db.Text\n  localisation String?  @db.VarChar(100)\n  latitude     Decimal? @db.Decimal(10, 8)\n  longitude    Decimal? @db.Decimal(11, 8)\n  statut       Statut   @default(actif)\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n\n  produits            Produit[]\n  commandesFournies   CommandeProduit[]\n  commandesCollecteur Commande[]\n\n  @@index([role])\n  @@index([localisation])\n}\n\nenum Statut {\n  actif\n  inactif\n  suspendu\n}\n\nenum Role {\n  paysan\n  collecteur\n  admin\n}\n\nmodel Produit {\n  id                 String        @id @default(cuid())\n  nom                String        @db.VarChar(150)\n  type               ProduitType\n  sousType           String?       @db.VarChar(100)\n  description        String?\n  quantiteDisponible Decimal       @db.Decimal(10, 2)\n  unite              Unite         @default(kg)\n  prixUnitaire       Decimal       @db.Decimal(10, 2)\n  dateRecolte        DateTime\n  datePeremption     DateTime?\n  imageUrl           String?       @db.VarChar(255)\n  statut             ProduitStatut @default(disponible)\n  conditionsStockage String?\n  localisation       String?       @db.VarChar(100)\n  latitude           Decimal?      @db.Decimal(10, 8)\n  longitude          Decimal?      @db.Decimal(11, 8)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  commandesProduit CommandeProduit[]\n\n  paysanId String\n  paysan   User   @relation(fields: [paysanId], references: [id], onDelete: Cascade)\n\n  @@index([paysanId])\n  @@index([type])\n  @@index([statut])\n  @@index([dateRecolte])\n}\n\n// Enum pour le type de produit\nenum ProduitType {\n  grain\n  legumineuse\n  tubercule\n  fruit\n  legume\n  epice\n  autre\n}\n\n// Enum pour l’unité\nenum Unite {\n  kg\n  tonne\n  sac\n  litre\n}\n\n// Enum pour le statut\nenum ProduitStatut {\n  disponible\n  rupture\n  archive\n}\n\nmodel Commande {\n  id                String         @id @default(cuid())\n  produitRecherche  String\n  quantiteTotal     Decimal        @db.Decimal(10, 2)\n  prixUnitaire      Decimal        @db.Decimal(10, 2)\n  territoire        String?\n  statut            CommandeStatut @default(ouverte)\n  messageCollecteur String?\n  createdAt         DateTime       @default(now())\n  updatedAt         DateTime       @updatedAt\n\n  collecteurId String\n  collecteur   User   @relation(fields: [collecteurId], references: [id])\n\n  lignes CommandeProduit[]\n}\n\n// ENUMs\nenum CommandeStatut {\n  en_attente\n  ouverte\n  partiellement_fournie\n  complete\n  acceptee\n  annulee\n}\n\nmodel CommandeProduit {\n  id               String      @id @default(cuid())\n  quantiteAccordee Decimal     @db.Decimal(10, 2)\n  prixUnitaire     Decimal     @db.Decimal(10, 2)\n  statutLigne      StatutLigne @default(acceptee)\n  createdAt        DateTime    @default(now())\n  updatedAt        DateTime    @updatedAt\n\n  commandeId String\n  commande   Commande @relation(fields: [commandeId], references: [id])\n  produitId  String\n  produit    Produit  @relation(fields: [produitId], references: [id])\n  paysanId   String\n  paysan     User     @relation(fields: [paysanId], references: [id])\n}\n\n// ENUM\nenum StatutLigne {\n  acceptee\n  partiellement_acceptee\n  rejetée\n}\n",
-  "inlineSchemaHash": "ca6e3488a6b0961fe1440829eb4a26f39f6a27f005ad553acf2d5bbdc90ce0ad",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider      = \"prisma-client\"\n  output        = \"../src/generated\"\n  binaryTargets = [\"native\", \"windows\", \"darwin\"]\n}\n\ndatasource db {\n  provider     = \"mysql\"\n  url          = env(\"DATABASE_URL\")\n  relationMode = \"prisma\"\n}\n\nmodel User {\n  id           String   @id @default(cuid())\n  nom          String\n  prenom       String\n  email        String   @unique\n  telephone    String\n  mot_de_passe String\n  role         Role\n  avatar       String?  @db.VarChar(255)\n  adresse      String?  @db.Text\n  localisation String?  @db.VarChar(100)\n  latitude     Decimal? @db.Decimal(10, 8)\n  longitude    Decimal? @db.Decimal(11, 8)\n  statut       Statut   @default(actif)\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n\n  produits            Produit[]\n  commandesFournies   CommandeProduit[]\n  commandesCollecteur Commande[]\n\n  @@index([role])\n  @@index([localisation])\n}\n\nenum Statut {\n  actif\n  inactif\n  suspendu\n}\n\nenum Role {\n  paysan\n  collecteur\n  admin\n}\n\nmodel Produit {\n  id                 String        @id @default(cuid())\n  nom                String        @db.VarChar(150)\n  type               ProduitType\n  sousType           String?       @db.VarChar(100)\n  description        String?\n  quantiteDisponible Decimal       @db.Decimal(10, 2)\n  unite              Unite         @default(kg)\n  prixUnitaire       Decimal       @db.Decimal(10, 2)\n  dateRecolte        DateTime\n  datePeremption     DateTime?\n  imageUrl           String?       @db.VarChar(255)\n  statut             ProduitStatut @default(disponible)\n  conditionsStockage String?\n  localisation       String?       @db.VarChar(100)\n  latitude           Decimal?      @db.Decimal(10, 8)\n  longitude          Decimal?      @db.Decimal(11, 8)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  commandesProduit CommandeProduit[]\n\n  paysanId String\n  paysan   User   @relation(fields: [paysanId], references: [id], onDelete: Cascade)\n\n  @@index([paysanId])\n  @@index([type])\n  @@index([statut])\n  @@index([dateRecolte])\n}\n\n// Enum pour le type de produit\nenum ProduitType {\n  grain\n  legumineuse\n  tubercule\n  fruit\n  legume\n  epice\n  autre\n}\n\n// Enum pour l’unité\nenum Unite {\n  kg\n  tonne\n  sac\n  litre\n}\n\n// Enum pour le statut\nenum ProduitStatut {\n  disponible\n  rupture\n  archive\n}\n\nmodel Commande {\n  id                String         @id @default(cuid())\n  produitRecherche  String\n  quantiteTotal     Decimal        @db.Decimal(10, 2)\n  prixUnitaire      Decimal        @db.Decimal(10, 2)\n  territoire        String?\n  statut            CommandeStatut @default(ouverte)\n  messageCollecteur String?\n  createdAt         DateTime       @default(now())\n  updatedAt         DateTime       @updatedAt\n\n  collecteurId String\n  collecteur   User   @relation(fields: [collecteurId], references: [id])\n\n  lignes CommandeProduit[]\n}\n\n// ENUMs\nenum CommandeStatut {\n  en_attente\n  ouverte\n  partiellement_fournie\n  complete\n  acceptee\n  annulee\n}\n\nmodel CommandeProduit {\n  id               String      @id @default(cuid())\n  quantiteAccordee Decimal     @db.Decimal(10, 2)\n  prixUnitaire     Decimal     @db.Decimal(10, 2)\n  statutLigne      StatutLigne @default(acceptee)\n  createdAt        DateTime    @default(now())\n  updatedAt        DateTime    @updatedAt\n\n  commandeId String\n  commande   Commande @relation(fields: [commandeId], references: [id])\n  produitId  String\n  produit    Produit  @relation(fields: [produitId], references: [id])\n  paysanId   String\n  paysan     User     @relation(fields: [paysanId], references: [id])\n}\n\n// ENUM\nenum StatutLigne {\n  acceptee\n  partiellement_acceptee\n  rejetée\n}\n",
+  "inlineSchemaHash": "c277226dfef66fc8fd58e7d9685455c44302ef5eebc9bd7cde61ba0ad0222438",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},

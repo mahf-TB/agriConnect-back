@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsString,
   IsEnum,
@@ -36,10 +36,12 @@ export class CreateProduitDto {
   prixUnitaire: number;
 
   @IsDateString()
+  @Transform(({ value }) => new Date(value))
   dateRecolte: Date;
 
   @IsOptional()
   @IsDateString()
+  @Transform(({ value }) => new Date(value))
   datePeremption?: Date;
 
   @IsOptional()
