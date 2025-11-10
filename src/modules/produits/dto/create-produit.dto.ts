@@ -36,12 +36,12 @@ export class CreateProduitDto {
   prixUnitaire: number;
 
   @IsDateString()
-  @Transform(({ value }) => new Date(value))
+  @Transform(({ value }) => new Date(value).toISOString())
   dateRecolte: Date;
 
   @IsOptional()
   @IsDateString()
-  @Transform(({ value }) => new Date(value))
+  @Transform(({ value }) => new Date(value).toISOString())
   datePeremption?: Date;
 
   @IsOptional()
