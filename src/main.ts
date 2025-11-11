@@ -9,7 +9,7 @@ async function bootstrap() {
     cors: true,
   });
   app.setGlobalPrefix('api');
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+  app.useStaticAssets(join(process.cwd(), 'uploads'), {
     prefix: '/uploads', // correspond à http://localhost:3000/uploads/
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
