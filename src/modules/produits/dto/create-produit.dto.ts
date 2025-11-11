@@ -7,7 +7,7 @@ import {
   IsDateString,
   IsDecimal,
 } from 'class-validator';
-import { ProduitType, Unite, ProduitStatut } from 'src/generated/enums';
+import { ProduitType, Unite, ProduitStatut } from 'generated/enums';
 
 export class CreateProduitDto {
   @IsString()

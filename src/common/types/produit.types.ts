@@ -1,4 +1,4 @@
-import { Role } from "src/generated/enums";
+import { Role } from "generated/enums";
 
 export type Localisation = {
   adresse?: string;

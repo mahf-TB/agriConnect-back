@@ -1,4 +1,4 @@
-import { Produit, User } from 'src/generated/client';
+import { Produit, User } from 'generated/client';
 import { CleanProduit } from '../types/produit.types';
 import { capitalize } from '../utils/formatters';
 import { getFullUrl } from '../utils/file';

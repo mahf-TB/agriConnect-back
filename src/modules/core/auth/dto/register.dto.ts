@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Role } from 'src/generated/enums';
+import { Role } from 'generated/enums';
 
 export class RegisterDto {
   @IsNotEmpty()

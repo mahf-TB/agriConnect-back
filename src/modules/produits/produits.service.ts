@@ -6,7 +6,7 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { CreateProduitDto } from './dto/create-produit.dto';
 import { UpdateProduitDto } from './dto/update-produit.dto';
-import { ProduitStatut, ProduitType } from 'src/generated/enums';
+import { ProduitStatut, ProduitType } from 'generated/enums';
 import {
   mapProduitsToClean,
   mapProduitToClean,
