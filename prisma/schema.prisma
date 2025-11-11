@@ -27,8 +27,8 @@ model User {
   avatar              String?            @db.VarChar(255)
   adresse             String?            @db.Text
   localisation        String?            @db.VarChar(100)
-  latitude            Decimal?           @db.Decimal(10, 8)
-  longitude           Decimal?           @db.Decimal(11, 8)
+  latitude            Float?
+  longitude           Float?
   statut              Statut             @default(actif)
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
@@ -59,7 +59,7 @@ model Produit {
   nom                String             @db.VarChar(150)
   type               ProduitType
   sousType           String?            @db.VarChar(100)
-  description        String?
+  description        String?            @db.Text
   quantiteDisponible Decimal            @db.Decimal(10, 2)
   unite              Unite              @default(kg)
   prixUnitaire       Decimal            @db.Decimal(10, 2)
@@ -67,19 +67,18 @@ model Produit {
   datePeremption     DateTime?
   imageUrl           String?            @db.VarChar(255)
   statut             ProduitStatut      @default(disponible)
-  conditionsStockage String?
+  conditionsStockage String?            @db.Text
   localisation       String?            @db.VarChar(100)
-  latitude           Decimal?           @db.Decimal(10, 8)
-  longitude          Decimal?           @db.Decimal(11, 8)
+  latitude           Float?
+  longitude          Float?
 
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
 
-  commandesProduit   CommandeProduit[]
-
   paysanId           String
   paysan             User              @relation(fields: [paysanId], references: [id], onDelete: Cascade)
 
+  commandesProduit   CommandeProduit[]
 
   @@index([paysanId])
   @@index([type])
@@ -116,20 +115,28 @@ enum ProduitStatut {
 
 
 model Commande {
-  id                String             @id @default(cuid())
-  produitRecherche  String
-  quantiteTotal     Decimal            @db.Decimal(10,2)
-  prixUnitaire      Decimal            @db.Decimal(10,2)
-  territoire        String?
-  statut            CommandeStatut     @default(ouverte)
-  messageCollecteur String?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
+  id                  String             @id @default(cuid())
+  produitRecherche    String
+  quantiteTotal       Decimal            @db.Decimal(10,2)
+  prixUnitaire        Decimal            @db.Decimal(10,2)
+  statut              CommandeStatut     @default(ouverte)
+  messageCollecteur   String?            @db.Text
 
-  collecteurId      String
-  collecteur        User              @relation(fields: [collecteurId], references: [id])
+  adresseLiviraison   String?            @db.Text
+  dateLivraisonPrevue DateTime?
+  dateLivraison       DateTime?
 
-  lignes            CommandeProduit[]
+  territoire          String?
+  latitude            Float?
+  longitude           Float?
+
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  collecteurId        String
+  collecteur          User              @relation(fields: [collecteurId], references: [id])
+
+  lignes              CommandeProduit[]
 }
 
 
@@ -141,6 +148,7 @@ enum CommandeStatut {
   partiellement_fournie
   complete
   acceptee
+  livree
   annulee
 }
 
@@ -149,7 +157,7 @@ enum CommandeStatut {
 model CommandeProduit {
   id               String       @id @default(cuid())
   quantiteAccordee Decimal      @db.Decimal(10,2)
-  prixUnitaire     Decimal      @db.Decimal(10,2)
+  prixUnitaire     Decimal?     @db.Decimal(10,2)
   statutLigne      StatutLigne  @default(acceptee)
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt

@@ -8,7 +8,7 @@ export type ProduitWithPaysan = Produit & { paysan: User };
 
 export const mapProduitToClean = (
   produit: ProduitWithPaysan,
-  req: any
+  req?: any,
 ): CleanProduit => ({
   id: produit.id,
   nom: capitalize(produit.nom),
@@ -20,12 +20,11 @@ export const mapProduitToClean = (
   prixUnitaire: Number(produit.prixUnitaire),
   dateRecolte: produit.dateRecolte,
   datePeremption: produit.datePeremption,
-  imageUrl: getFullUrl(req ,produit.imageUrl),
+  imageUrl: req ? getFullUrl(req, produit.imageUrl) : produit.imageUrl,
   statut: produit.statut,
   conditionsStockage: produit.conditionsStockage,
   createdAt: produit.createdAt,
   updatedAt: produit.updatedAt,
-
   localisation: {
     adresse: produit.localisation,
     latitude: Number(produit.latitude),
@@ -43,5 +42,5 @@ export const mapProduitToClean = (
 
 export const mapProduitsToClean = (
   produits: ProduitWithPaysan[],
-  req : any
+  req: any,
 ): CleanProduit[] => produits.map((p) => mapProduitToClean(p, req));

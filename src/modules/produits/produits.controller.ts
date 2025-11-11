@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
   Request,
@@ -19,6 +20,7 @@ import { CreateProduitDto } from './dto/create-produit.dto';
 import { JwtAuthGuard } from '../core/auth/guards/jwt-auth.guard';
 import { UpdateProduitDto } from './dto/update-produit.dto';
 import { FileUploadInterceptor } from 'src/common/interceptors/file-upload.interceptor';
+import { deleteUploadedFile } from 'src/common/utils/file';
 
 @UseGuards(JwtAuthGuard)
 @Controller('produits')
@@ -35,23 +37,29 @@ export class ProduitsController {
     const paysanId = req.user.id;
     // path relatif pour la DB
     const imageUrl = file ? `/uploads/produits/${file.filename}` : null;
-    return this.produitService.create({ ...dto, paysanId, imageUrl });
+    try {
+      return this.produitService.create({ ...dto, paysanId, imageUrl });
+    } catch (error) {
+      if (file) deleteUploadedFile(imageUrl);
+      throw new BadRequestException(
+        'Échec de la création du produit. Veuillez réessayer.',
+      );
+    }
   }
 
   @Get()
   findAll(@Req() req, @Query() query) {
-    console.log(query);
-
+    const { page = 1, limit = 2, type, statut, paysanId, search } = query;
     return this.produitService.findAll(
       req,
       {
-        type: query?.type,
-        statut: query?.statut,
-        paysanId: query?.paysanId,
-        search: query?.search,
+        type,
+        statut,
+        paysanId,
+        search,
       },
-      Number(query.page),
-      Number(query.limit),
+      Number(page),
+      Number(limit),
     );
   }
 
@@ -60,18 +68,37 @@ export class ProduitsController {
     return this.produitService.findOne(id, req);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateProduitDto) {
-    if (dto.quantiteDisponible <= 0) {
+  @Put(':id')
+  @UseInterceptors(FileUploadInterceptor('image', 'produits'))
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateProduitDto,
+    @UploadedFile() file: any,
+  ) {
+    // ✅ On récupère la version brute du produit (pas CleanProduit)
+    const existingProduit = await this.produitService.findOne(id);
+    if (!existingProduit) throw new BadRequestException('Produit non trouvé');
+    const newImageUrl = file
+      ? `/uploads/produits/${file.filename}`
+      : existingProduit.imageUrl;
+
+    try {
+      // ✅ Mise à jour du produit dans la DB
+      const updatedProduit = await this.produitService.update(id, {
+        ...dto,
+        imageUrl: newImageUrl,
+      });
+      // ✅ Si une nouvelle image a été uploadée → supprimer l’ancienne
+      if (existingProduit.imageUrl)
+        deleteUploadedFile(existingProduit.imageUrl);
+      return updatedProduit;
+    } catch (error) {
+      // ❌ Si échec → supprimer le nouveau fichier uploadé
+      if (file) deleteUploadedFile(newImageUrl);
       throw new BadRequestException(
-        'La quantité disponible doit être supérieure à 0',
+        'Échec de la mise à jour du produit. Veuillez réessayer.',
       );
     }
-
-    if (dto.prixUnitaire <= 0) {
-      throw new BadRequestException('Le prix unitaire doit être supérieur à 0');
-    }
-    return this.produitService.update(id, dto);
   }
 
   @Delete(':id')
