@@ -116,13 +116,13 @@ enum ProduitStatut {
 
 model Commande {
   id                  String             @id @default(cuid())
-  produitRecherche    String
-  quantiteTotal       Decimal            @db.Decimal(10,2)
-  prixUnitaire        Decimal            @db.Decimal(10,2)
+  produitRecherche    String?
+  quantiteTotal       Decimal?           @db.Decimal(10,2)
+  prixUnitaire        Decimal?           @db.Decimal(10,2)
   statut              CommandeStatut     @default(ouverte)
   messageCollecteur   String?            @db.Text
 
-  adresseLiviraison   String?            @db.Text
+  adresseLivraison    String?            @db.Text
   dateLivraisonPrevue DateTime?
   dateLivraison       DateTime?
 
@@ -158,12 +158,12 @@ model CommandeProduit {
   id               String       @id @default(cuid())
   quantiteAccordee Decimal      @db.Decimal(10,2)
   prixUnitaire     Decimal?     @db.Decimal(10,2)
-  statutLigne      StatutLigne  @default(acceptee)
+  statutLigne      StatutLigne  @default(en_attente)
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 
   commandeId       String
-  commande         Commande    @relation(fields: [commandeId], references: [id])
+  commande         Commande    @relation(fields: [commandeId], references: [id], onDelete: Cascade)
   produitId        String
   produit          Produit     @relation(fields: [produitId], references: [id])
   paysanId         String
@@ -172,6 +172,7 @@ model CommandeProduit {
 
 // ENUM
 enum StatutLigne {
+  en_attente
   acceptee
   partiellement_acceptee
   rejetée

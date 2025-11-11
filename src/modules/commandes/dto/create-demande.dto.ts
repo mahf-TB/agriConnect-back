@@ -1,32 +1,51 @@
-import { IsString, IsOptional, IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsString,
+  IsOptional,
+  IsNotEmpty,
+  IsNumber,
+  Min,
+  IsDateString,
+} from 'class-validator';
 
 export class CreateDemandeDto {
   @IsString()
   @IsNotEmpty()
   produitRecherche: string;
 
+  @IsOptional()
   @IsNumber()
-  @Min(0.01)
+  @Type(() => Number)
   quantiteTotal: number;
 
+  @IsOptional()
   @IsNumber()
-  @Min(0.01)
+  @Type(() => Number)
   prixUnitaire: number;
 
   @IsOptional()
   @IsString()
   territoire?: string;
 
-   @IsOptional()
+  @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   latitude?: number;
 
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   longitude?: number;
 
   @IsOptional()
   @IsString()
   messageCollecteur?: string;
 
+  @IsOptional()
+  @IsString()
+  adresseLivraison?: string;
+
+  @IsDateString()
+  @Transform(({ value }) => new Date(value).toISOString())
+  dateLivraisonPrevue: Date;
 }

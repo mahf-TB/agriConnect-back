@@ -102,7 +102,24 @@ export class ProduitsController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.produitService.delete(id);
+  async remove(@Param('id') id: string) {
+    // Récupérer le produit existant
+    const existingProduit = await this.produitService.findOne(id);
+    if (!existingProduit) {
+      throw new BadRequestException('Produit non trouvé');
+    }
+    try {
+      // Supprimer le produit de la DB
+      await this.produitService.delete(id);
+      // Supprimer l’image si elle existe
+      if (existingProduit.imageUrl)
+        deleteUploadedFile(existingProduit.imageUrl);
+
+      return { message: 'Produit supprimé avec succès' };
+    } catch (error) {
+      throw new BadRequestException(
+        'Échec de la suppression du produit. Veuillez réessayer.',
+      );
+    }
   }
 }
