@@ -118,6 +118,7 @@ model Commande {
   id                  String             @id @default(cuid())
   produitRecherche    String?
   quantiteTotal       Decimal?           @db.Decimal(10,2)
+  unite               Unite              @default(kg)
   prixUnitaire        Decimal?           @db.Decimal(10,2)
   statut              CommandeStatut     @default(ouverte)
   messageCollecteur   String?            @db.Text
@@ -129,6 +130,7 @@ model Commande {
   territoire          String?
   latitude            Float?
   longitude           Float?
+  rayon               Float?
 
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt

@@ -4,7 +4,6 @@ import {
   IsOptional,
   IsNotEmpty,
   IsNumber,
-  Min,
   IsDateString,
 } from 'class-validator';
 
@@ -36,6 +35,11 @@ export class CreateDemandeDto {
   @IsNumber()
   @Type(() => Number)
   longitude?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  rayonKm?: number = 10;
 
   @IsOptional()
   @IsString()
