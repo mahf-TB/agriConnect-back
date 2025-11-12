@@ -139,6 +139,9 @@ model Commande {
   collecteur          User              @relation(fields: [collecteurId], references: [id])
 
   lignes              CommandeProduit[]
+
+  @@index([collecteurId])
+  @@index([statut])
 }
 
 
@@ -170,6 +173,9 @@ model CommandeProduit {
   produit          Produit     @relation(fields: [produitId], references: [id])
   paysanId         String
   paysan           User        @relation(fields: [paysanId], references: [id])
+
+  @@index([produitId])
+  @@index([paysanId])
 }
 
 // ENUM
@@ -177,6 +183,7 @@ enum StatutLigne {
   en_attente
   acceptee
   partiellement_acceptee
+  livree
   rejetée
 }
 

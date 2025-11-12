@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   UploadedFile,
@@ -28,6 +29,12 @@ export class UserController {
   findAll() {
     return this.userService.findAll();
   }
+
+   @Get(":id")
+  findUser(@Param('id') id : string) {
+    return this.userService.findOne(id);
+  }
+
 
   @Post('avatar')
   @UseInterceptors(FileUploadInterceptor('avatar', 'avatars'))

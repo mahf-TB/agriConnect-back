@@ -39,7 +39,7 @@ export class CreateDemandeDto {
   @IsNumber()
   @IsOptional()
   @Type(() => Number)
-  rayonKm?: number = 10;
+  rayonKm?: number;
 
   @IsOptional()
   @IsString()
