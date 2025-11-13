@@ -163,6 +163,7 @@ export class CommandesService {
     }
   }
 
+
   async findAllDemandeAuxPaysan(paysanId: string, filters?: FilterCommandeDto) {
     try {
       const { statut, produitRecherche, territoire, dateDebut, dateFin } =
@@ -201,6 +202,7 @@ export class CommandesService {
     }
   }
 
+  
   // Exemple simple de recherche de produit dans un rayon (Haversine)
   private async findProduitDansRayon(
     lat: number,
@@ -212,7 +214,7 @@ export class CommandesService {
     // Récupérer tous les paysans qui ont ce produit
     const produits = await this.prisma.produit.findMany({
       where: {
-        nom: { contains: produitRecherche },
+        // nom: { contains: produitRecherche },
         ...(paysanId && { paysanId }),
         paysan: {
           latitude: { not: null },
