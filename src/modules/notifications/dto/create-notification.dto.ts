@@ -3,7 +3,7 @@ import { NotificationType } from 'generated/enums';
 
 export class CreateNotificationDto {
   @IsEnum(NotificationType)
-  type: NotificationType;
+  type?: NotificationType;
 
   @IsString()
   @IsNotEmpty()

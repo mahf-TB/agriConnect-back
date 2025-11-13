@@ -10,9 +10,10 @@ import { ProduitStatut, ProduitType } from 'generated/enums';
 import {
   mapProduitsToClean,
   mapProduitToClean,
+  ProduitWithPaysan,
 } from 'src/common/mappers/produit.mapper';
-import { PaginatedProduits } from 'src/common/types/produit.types';
-import { paginate } from 'src/common/utils/pagination';
+import { CleanProduit, PaginatedProduits } from 'src/common/types/produit.types';
+import { paginate, PaginatedResult } from 'src/common/utils/pagination';
 
 @Injectable()
 export class ProduitsService {
@@ -34,11 +35,11 @@ export class ProduitsService {
       search?: string;
     },
     page = 1,
-    limit = 2,
-  ): Promise<PaginatedProduits> {
+    limit = 10,
+  ): Promise<PaginatedResult<CleanProduit>> {
     const skip = (page - 1) * limit;
 
-    // 🧩 Construction dynamique des filtres Prisma
+    // 🧩 Construction dynamique des xfiltres Prisma
     const where: any = {};
 
     if (params?.type) where.type = params.type;

@@ -5,17 +5,37 @@ import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Injectable()
 export class NotificationsService {
-    constructor(
+  constructor(
     private readonly prisma: PrismaService,
     private readonly gateway: NotificationGateway,
   ) {}
 
-
   async envoieNotify(dto: CreateNotificationDto) {
     // cmhukhr6x0000q7l99zruwtly
-    const {titre , message}= dto;
-    this.gateway.sendToUser("cmhukhr6x0000q7l99zruwtly", {titre , message});
-    return ;
+    const notification = await this.prisma.notification.create({
+      data: {
+        type: dto.type,
+        titre: dto.titre,
+        message: dto.message,
+        lien: dto.lien,
+        reference_id: dto.reference_id,
+        reference_type: dto.reference_type,
+        allUserNotifications: {
+          create: dto.userIds.map((userId) => ({
+            user: { connect: { id: userId } },
+          })),
+        },
+      },
+      include: { allUserNotifications: true },
+    });
+
+    const { allUserNotifications, ...notifData } = notification;
+    // Envoi temps réel
+    dto.userIds.forEach((userId) => {
+      this.gateway.sendToUser(userId, notifData);
+    });
+
+    return notification;
   }
 
   // 🔔 Créer une notification pour 1 ou N utilisateurs et envoyer en temps réel
@@ -29,7 +49,7 @@ export class NotificationsService {
         reference_id: dto.reference_id,
         reference_type: dto.reference_type,
         allUserNotifications: {
-          create: dto.userIds.map(userId => ({
+          create: dto.userIds.map((userId) => ({
             user: { connect: { id: userId } },
           })),
         },
@@ -37,9 +57,9 @@ export class NotificationsService {
       include: { allUserNotifications: true },
     });
 
-    const {allUserNotifications, ...notifData} = notification;
+    const { allUserNotifications, ...notifData } = notification;
     // Envoi temps réel
-    dto.userIds.forEach(userId => {
+    dto.userIds.forEach((userId) => {
       this.gateway.sendToUser(userId, notifData);
     });
 
@@ -62,5 +82,4 @@ export class NotificationsService {
       data: { lu: true, dateLecture: new Date() },
     });
   }
-
 }

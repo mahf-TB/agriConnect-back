@@ -18,10 +18,6 @@ export class NotificationsController {
     return this.notificationService.findByUser(id);
   }
 
-  @Post("envoie")
-  EnvoyerNotify(@Body() dto: CreateNotificationDto) {
-    return this.notificationService.create(dto);
-  }
 
   // Marquer une notification comme lue
   @Patch(':id/lu')

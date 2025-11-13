@@ -5,12 +5,21 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { ProduitsService } from '../produits/produits.service';
 import { calculerDistanceKm } from 'src/common/utils/geo.utils';
 import { FilterCommandeDto } from './dto/filter-commande.dto';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from 'generated/enums';
+import {
+  mapCommandesToClean,
+  mapCommandeToClean,
+} from 'src/common/mappers/commande.mapper';
+import { paginate, PaginatedResult } from 'src/common/utils/pagination';
+import { CleanCommande } from 'src/common/types/commande.types';
 
 @Injectable()
 export class CommandesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly produitService: ProduitsService,
+    private readonly notifyService: NotificationsService,
   ) {}
 
   async createDemande(collecteurId: string, dto: CreateDemandeDto) {
@@ -39,11 +48,22 @@ export class CommandesService {
       );
 
       // 3️⃣ Extraire les paysans uniques
-      const paysansUniques = Array.from(
-        new Map(produitsProches.map((p) => [p.paysan.id, p.paysan])).values(),
+      const userIds = Array.from(
+        new Set(produitsProches.map((p) => p.paysan.id)),
       );
 
-      return paysansUniques;
+      const dataEnvoie = {
+        type: NotificationType.alerte,
+        titre: 'Nouvelle demande de produit',
+        message: `Une nouvelle demande de ${dto.produitRecherche} a été créée près de chez vous.`,
+        lien: `/demandes/${comd.id}`,
+        reference_id: comd.id,
+        reference_type: 'commande',
+        userIds: userIds,
+      };
+      await this.notifyService.envoieNotify(dataEnvoie);
+
+      return comd;
     } catch (error) {
       throw new BadRequestException(
         'La création de la demande de produit a échoué. Veuillez réessayer.',
@@ -123,39 +143,50 @@ export class CommandesService {
   async findAllCommandesCollecteur(
     collecteurId: string,
     filters?: FilterCommandeDto,
-  ) {
+    page = 1,
+    limit = 10,
+  ): Promise<PaginatedResult<CleanCommande>> {
+    const skip = (page - 1) * limit;
     try {
       const { statut, produitRecherche, territoire, dateDebut, dateFin } =
         filters || {};
 
-      const commandes = await this.prisma.commande.findMany({
-        where: {
-          collecteurId,
-          ...(statut && { statut }),
-          ...(produitRecherche && {
-            produitRecherche: {
-              contains: produitRecherche,
-            },
-          }),
-          ...(territoire && {
-            territoire: {
-              contains: territoire,
-            },
-          }),
-          ...(dateDebut &&
-            dateFin && {
-              createdAt: {
-                gte: new Date(dateDebut),
-                lte: new Date(dateFin),
+      const [commandes, total] = await Promise.all([
+        await this.prisma.commande.findMany({
+          where: {
+            collecteurId,
+            ...(statut && { statut }),
+            ...(produitRecherche && {
+              produitRecherche: {
+                contains: produitRecherche,
               },
             }),
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
-
-      return commandes;
+            ...(territoire && {
+              territoire: {
+                contains: territoire,
+              },
+            }),
+            ...(dateDebut &&
+              dateFin && {
+                createdAt: {
+                  gte: new Date(dateDebut),
+                  lte: new Date(dateFin),
+                },
+              }),
+          },
+          include: {
+            collecteur: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+          skip,
+          take: limit,
+        }),
+        await this.prisma.commande.count({ where: filters }),
+      ]);
+      const cleaned = mapCommandesToClean(commandes);
+      return paginate(cleaned, total, { page, limit });
     } catch (error) {
       throw new BadRequestException(
         'Erreur lors de la récupération des commandes : ' + error.message,
@@ -163,18 +194,42 @@ export class CommandesService {
     }
   }
 
+  // -- -- ==================================================================================
+  // -- -- Pour recuperer les demande publier pour voir le paysan
+  // -- -- ==================================================================================
 
-  async findAllDemandeAuxPaysan(paysanId: string, filters?: FilterCommandeDto) {
+  async findAllDemandeAuxPaysan(
+    paysanId: string,
+    filters?: FilterCommandeDto,
+    page = 1,
+    limit = 10,
+  ) :Promise<PaginatedResult<CleanCommande>> {
+    const skip = (page - 1) * limit;
+
+    const { statut, produitRecherche, territoire, dateDebut, dateFin } =
+      filters || {};
     try {
-      const { statut, produitRecherche, territoire, dateDebut, dateFin } =
-        filters || {};
-      // 2️⃣ Récupérer toutes les commandes ouvertes ou en cours
-      const commandes = await this.prisma.commande.findMany({
-        where: {
-          statut: { in: ['ouverte', 'partiellement_fournie'] },
-        },
-        include: { lignes: true },
-      });
+      const [commandes, total] = await Promise.all([
+        // 2️⃣ Récupérer toutes les commandes ouvertes ou en cours
+        await this.prisma.commande.findMany({
+          where: {
+            statut: { in: ['ouverte', 'partiellement_fournie'] },
+            ...(dateDebut &&
+              dateFin && {
+                createdAt: {
+                  gte: new Date(dateDebut),
+                  lte: new Date(dateFin),
+                },
+              }),
+          },
+          include: { lignes: true, collecteur: true },
+          skip,
+          take: limit,
+        }),
+        // 3️⃣ Compter le total pour la pagination
+        await this.prisma.commande.count({where: {statut: { in: ['ouverte', 'partiellement_fournie'] }}})
+      ]);
+
       // 2️⃣ Pour chaque commande, vérifier si le paysan a un produit correspondant dans le rayon
       const resultats = await Promise.all(
         commandes.map(async (cmd) => {
@@ -182,7 +237,7 @@ export class CommandesService {
             cmd.latitude,
             cmd.longitude,
             cmd.rayon,
-            cmd.produitRecherche,
+            '',
             paysanId,
           );
 
@@ -194,7 +249,9 @@ export class CommandesService {
       );
 
       // 3️⃣ Retourner uniquement les commandes pertinentes
-      return resultats.filter((r) => r !== null);
+      const dataResultat = resultats.filter((r) => r !== null);
+      const cleaned = mapCommandesToClean(dataResultat);
+      return paginate(cleaned, total, { page, limit });
     } catch (error) {
       throw new BadRequestException(
         'Erreur lors de la récupération des commandes : ' + error.message,
@@ -202,19 +259,18 @@ export class CommandesService {
     }
   }
 
-  
   // Exemple simple de recherche de produit dans un rayon (Haversine)
   private async findProduitDansRayon(
     lat: number,
     lon: number,
     rayonKm = 10,
-    produitRecherche: string,
+    produitRecherche?: string,
     paysanId?: string,
   ) {
     // Récupérer tous les paysans qui ont ce produit
     const produits = await this.prisma.produit.findMany({
       where: {
-        // nom: { contains: produitRecherche },
+        nom: { contains: produitRecherche },
         ...(paysanId && { paysanId }),
         paysan: {
           latitude: { not: null },
