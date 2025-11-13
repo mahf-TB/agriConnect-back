@@ -1,3 +1,4 @@
+import { CommandeProduit } from 'generated/client';
 import { CommandeStatut, Role, Unite } from 'generated/enums';
 
 export type Localisation = {
@@ -24,6 +25,10 @@ export type CleanCommande = {
   prixUnitaire: number;
   statut: CommandeStatut;
   messageCollecteur: string | null;
+  territoire?: string;
+  latitude?: number;
+  longitude?: number;
+  rayon?: number;
 
   dateLivraisonPrevue: Date | null;
   dateLivraison: Date | null;
@@ -31,16 +36,8 @@ export type CleanCommande = {
 
   createdAt: Date;
   updatedAt: Date;
-  
+
   localisation?: Localisation;
   collecteur: CollecteurInfo;
-};
-
-// Structure pour pagination propre
-export type PaginatedCommandes = {
-  data: CleanCommande[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
+  lignes?: CommandeProduit[];
 };

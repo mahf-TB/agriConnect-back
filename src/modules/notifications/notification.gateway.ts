@@ -20,6 +20,8 @@ export class NotificationGateway
     if (userId) {
       this.clients.set(client.id, userId);
       console.log(`✅ Notification: User ${userId} connected`);
+      console.log(`User connected :`, this.clients);
+      
     }
   }
 
@@ -31,7 +33,6 @@ export class NotificationGateway
     for (const [socketId, uid] of this.clients) {
       if (uid === userId) this.server.to(socketId).emit('notification', data);
       console.log(socketId);
-      
     }
   }
 

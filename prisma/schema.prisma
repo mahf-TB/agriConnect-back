@@ -17,27 +17,31 @@ datasource db {
 }
 
 model User {
-  id                  String             @id @default(cuid())
+  id                  String              @id @default(cuid())
   nom                 String
   prenom              String
-  email               String             @unique
+  email               String              @unique
   telephone           String
   mot_de_passe        String
   role                Role
-  avatar              String?            @db.VarChar(255)
-  adresse             String?            @db.Text
-  localisation        String?            @db.VarChar(100)
+  avatar              String?             @db.VarChar(255)
+  adresse             String?             @db.Text
+  localisation        String?             @db.VarChar(100)
   latitude            Float?
   longitude           Float?
-  statut              Statut             @default(actif)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  statut              Statut              @default(actif)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
 
   produits            Produit[]
   commandesFournies   CommandeProduit[]
   commandesCollecteur Commande[]
   notifications       UserNotification[]
 
+  messagesEnvoyes     Message[]          @relation("Expediteur")
+  messagesRecus       Message[]          @relation("Destinataire")
+  conversationsP1     Conversation[]     @relation("Participant1")
+  conversationsP2     Conversation[]     @relation("Participant2")
 
   @@index([role])
   @@index([localisation])
@@ -190,15 +194,15 @@ enum StatutLigne {
 
 
 model Notification {
-  id              String       @id @default(cuid())
-  type            NotificationType
-  titre           String
-  message         String
-  lien            String?
-  reference_id    String?
-  reference_type  String?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  id                   String              @id @default(cuid())
+  type                 NotificationType
+  titre                String
+  message              String
+  lien                 String?
+  reference_id         String?
+  reference_type       String?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
 
   allUserNotifications UserNotification[]
 
@@ -215,15 +219,76 @@ enum NotificationType {
 
 
 model UserNotification {
-  id              String          @id @default(cuid())
-  userId          String
-  notificationId  String
-  lu              Boolean      @default(false)
-  dateLecture     DateTime?
+  id             String        @id @default(cuid())
+  userId         String
+  notificationId String
+  lu             Boolean       @default(false)
+  dateLecture    DateTime?
 
-  // Relations
-  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  notification    Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  //             Relations
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
   @@unique([userId, notificationId])
+}
+
+
+model Message {
+  id             String         @id @default(cuid())
+  expediteurId   String
+  destinataireId String
+  contenu        String?
+  typeContenu    MessageType    @default(texte)
+  fichierUrl     String?
+  lu             Boolean        @default(false)
+  dateEnvoi      DateTime       @default(now())
+  dateLecture    DateTime?
+  updatedAt      DateTime       @updatedAt
+
+  expediteur     User          @relation("Expediteur", fields: [expediteurId], references: [id], onDelete: Cascade)
+  destinataire   User          @relation("Destinataire", fields: [destinataireId], references: [id], onDelete: Cascade)
+
+  conversationId String?
+  conversation   Conversation? @relation("MessagesConversation", fields: [conversationId], references: [id], onDelete: Cascade)
+
+  dernierDe      Conversation? @relation("DernierMessage") 
+  // inverse de dernierMessage
+
+  @@index([expediteurId, destinataireId])
+  @@index([dateEnvoi])
+  @@index([lu])
+}
+
+enum MessageType {
+  texte
+  image
+  video
+  document
+}
+
+model Conversation {
+  id                   String     @id @default(cuid())
+  participant1Id       String
+  participant2Id       String
+  dernierMessageId     String?    @unique
+
+  messagesNonLusP1     Int        @default(0)
+  messagesNonLusP2     Int        @default(0)
+  dateDerniereActivite DateTime   @default(now())
+  archiveP1            Boolean    @default(false)
+  archiveP2            Boolean    @default(false)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  participant1         User      @relation("Participant1", fields: [participant1Id], references: [id], onDelete: Cascade)
+  participant2         User      @relation("Participant2", fields: [participant2Id], references: [id], onDelete: Cascade)
+
+  // 👇 nommer la relation pour le dernier message
+  dernierMessage       Message?  @relation("DernierMessage", fields: [dernierMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  // 👇 nommer la relation pour tous les messages
+  messages             Message[] @relation("MessagesConversation")
+
+  @@unique([participant1Id, participant2Id])
+  @@index([participant1Id, participant2Id])
 }

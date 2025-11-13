@@ -36,14 +36,14 @@ export class CommandesService {
           territoire: dto.territoire,
           latitude: dto.latitude,
           longitude: dto.longitude,
-          rayon: dto.rayonKm,
+          rayon: dto.rayon,
         },
       });
 
       const produitsProches = await this.findProduitDansRayon(
         dto.latitude,
         dto.longitude,
-        dto.rayonKm,
+        dto.rayon,
         dto.produitRecherche,
       );
 
@@ -240,7 +240,6 @@ export class CommandesService {
             '',
             paysanId,
           );
-
           if (produitsTrouves.length > 0) {
             return cmd;
           }

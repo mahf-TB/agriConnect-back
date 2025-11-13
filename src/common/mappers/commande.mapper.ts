@@ -1,10 +1,13 @@
-import { Commande, User } from 'generated/client';
-import { CleanCommande, CollecteurInfo, Localisation } from '../types/commande.types';
+import { Commande, CommandeProduit, Produit, User } from 'generated/client';
+import {
+  CleanCommande,
+
+} from '../types/commande.types';
 import { capitalize } from '../utils/formatters';
 import { getFullUrl } from '../utils/file';
 
 // Commande avec le collecteur associé
-export type CommandeWithCollecteur = Commande & { collecteur: User };
+export type CommandeWithCollecteur = Commande & { collecteur: User , lignes?: CommandeProduit[]};
 
 export const mapCommandeToClean = (
   commande: CommandeWithCollecteur,
@@ -25,14 +28,10 @@ export const mapCommandeToClean = (
   createdAt: commande.createdAt,
   updatedAt: commande.updatedAt,
 
-  localisation: commande.latitude && commande.longitude
-    ? {
-        territoire: commande.territoire ?? '',
-        latitude: Number(commande.latitude),
-        longitude: Number(commande.longitude),
-        rayon: commande.rayon ? Number(commande.rayon) : undefined,
-      }
-    : undefined,
+  territoire: commande.territoire ?? '',
+  latitude: Number(commande.latitude),
+  longitude: Number(commande.longitude),
+  rayon: commande.rayon ? Number(commande.rayon) : undefined,
 
   collecteur: {
     id: commande.collecteur.id,
@@ -42,6 +41,7 @@ export const mapCommandeToClean = (
     telephone: commande.collecteur.telephone,
     role: commande.collecteur.role,
   },
+  lignes: commande.lignes
 });
 
 export const mapCommandesToClean = (
