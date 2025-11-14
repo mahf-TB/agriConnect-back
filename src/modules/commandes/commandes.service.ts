@@ -208,11 +208,14 @@ export class CommandesService {
       const [commandes, total] = await Promise.all([
         this.prisma.commande.findMany({
           where: whereCondition,
-          include: { lignes: {
-      include: {
-        produit: true,     // inclure le produit lié à chaque ligne
-      },
-    }, collecteur: true },
+          include: {
+            lignes: {
+              include: {
+                produit: true, // inclure le produit lié à chaque ligne
+              },
+            },
+            collecteur: true,
+          },
           skip,
           take: limit,
         }),
@@ -432,9 +435,12 @@ export class CommandesService {
           '',
           paysanId,
         );
+        console.log("Commande : lat , lon :",cmd.latitude, cmd.longitude);
         return produitsTrouves.length > 0 ? cmd : null;
       }),
     );
+
+    console.log(results);
 
     return results.filter((r) => r !== null);
   }
@@ -464,21 +470,18 @@ export class CommandesService {
     rayonKm = 10,
     produitRecherche?: string,
     paysanId?: string,
-  ) {
+  ) {    
     // Récupérer les produits correspondants
     const produits = await this.prisma.produit.findMany({
       where: {
         ...(produitRecherche && { nom: { contains: produitRecherche } }),
         ...(paysanId && { paysanId }),
-        paysan: {
-          latitude: { not: null },
-          longitude: { not: null },
-        },
         statut: 'disponible',
       },
       include: { paysan: true },
     });
 
+    
     // Filtrer par distance (Haversine)
     return produits.filter((prod) => {
       if (!prod.latitude || !prod.longitude) return false;

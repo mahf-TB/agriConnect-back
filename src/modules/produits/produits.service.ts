@@ -94,6 +94,8 @@ export class ProduitsService {
         { sousType: { contains: params.search, mode: 'insensitive' } },
       ];
     }
+    console.log(params?.paysanId);
+    
     // ⚙️ Requête paginée
     const [produits, total] = await Promise.all([
       this.prisma.produit.findMany({

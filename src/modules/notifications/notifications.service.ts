@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { NotificationGateway } from './notification.gateway';
+// import { NotificationGateway } from './notification.gateway';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { NotificationsGateway } from 'src/common/websockets/notifications/notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly gateway: NotificationGateway,
+    private readonly gateway: NotificationsGateway,
   ) {}
 
   async envoieNotify(dto: CreateNotificationDto) {
@@ -28,13 +29,9 @@ export class NotificationsService {
       },
       include: { allUserNotifications: true },
     });
-
     const { allUserNotifications, ...notifData } = notification;
     // Envoi temps réel
-    dto.userIds.forEach((userId) => {
-      this.gateway.sendToUser(userId, notifData);
-    });
-
+    this.gateway.sendNotificationToUsers(dto.userIds, notifData);
     return notification;
   }
 
@@ -60,7 +57,7 @@ export class NotificationsService {
     const { allUserNotifications, ...notifData } = notification;
     // Envoi temps réel
     dto.userIds.forEach((userId) => {
-      this.gateway.sendToUser(userId, notifData);
+      this.gateway.sendNotificationToUser(userId, notifData);
     });
 
     return notification;

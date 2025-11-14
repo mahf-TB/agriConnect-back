@@ -4,7 +4,6 @@ import {
 
 } from '../types/commande.types';
 import { capitalize } from '../utils/formatters';
-import { getFullUrl } from '../utils/file';
 
 // Commande avec le collecteur associé
 export type CommandeWithCollecteur = Commande & { collecteur: User , lignes?: CommandeProduit[]};

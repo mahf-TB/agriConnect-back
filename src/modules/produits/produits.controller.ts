@@ -67,6 +67,7 @@ export class ProduitsController {
   getAllProduitPaysan(@Req() req: any, @Query() query: any) {
     const { page = 1, limit = 2, type, statut, search } = query;
     const paysanId = req.user.id;
+    
     return this.produitService.findAllProduitDuPaysan(
       req,
       {
