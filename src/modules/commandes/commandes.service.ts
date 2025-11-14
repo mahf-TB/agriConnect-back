@@ -496,4 +496,70 @@ export class CommandesService {
       return distance <= rayonKm;
     });
   }
+
+  /**
+   * Admin: Récupère TOUTES les commandes passées par les collecteurs
+   * Avec filtrage optionnel par statut, date, ou collecteur
+   * @param filters Critères de filtrage (statut, dateDebut, dateFin, collecteurId, produitRecherche)
+   * @param page Numéro de page (défaut: 1)
+   * @param limit Résultats par page (défaut: 20)
+   * @returns Commandes paginées
+   */
+  async findAllCommandesAdmin(
+    filters?: FilterCommandeDto & { collecteurId?: string },
+    page = 1,
+    limit = 20,
+  ): Promise<PaginatedResult<CleanCommande>> {
+    this.logger.debug(
+      `Admin - Récupération toutes les commandes, page: ${page}`,
+    );
+
+    const skip = (page - 1) * limit;
+    const { statut, produitRecherche, territoire, dateDebut, dateFin, collecteurId } = filters || {};
+
+    try {
+      // Construire la clause WHERE pour récupérer TOUTES les commandes (sans restriction par collecteur)
+      const whereCondition: any = {
+        ...(statut && { statut }),
+        ...(produitRecherche && { produitRecherche: { contains: produitRecherche } }),
+        ...(territoire && { territoire: { contains: territoire } }),
+        ...(collecteurId && { collecteurId }), // optionnel, filter par collecteur si fourni
+        ...(dateDebut && dateFin && {
+          createdAt: {
+            gte: new Date(dateDebut),
+            lte: new Date(dateFin),
+          },
+        }),
+      };
+
+      const [commandes, total] = await Promise.all([
+        this.prisma.commande.findMany({
+          where: whereCondition,
+          include: {
+            collecteur: true,
+            lignes: {
+              include: {
+                produit: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.commande.count({ where: whereCondition }),
+      ]);
+
+      const cleaned = mapCommandesToClean(commandes);
+      return paginate(cleaned, total, { page, limit });
+    } catch (error) {
+      this.logger.error(
+        `Erreur récupération commandes admin: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        'Erreur lors de la récupération des commandes: ' + error.message,
+      );
+    }
+  }
 }
