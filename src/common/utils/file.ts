@@ -13,6 +13,8 @@ export const getFullUrl = (req: Request, filePath?: string): string | null => {
   return `${req.protocol}://${req.get('host')}${filePath}`;
 };
 
+
+
 /**
  * Supprime un fichier uploadé s’il existe.
  * @param filePath - le nom du fichier à supprimer
