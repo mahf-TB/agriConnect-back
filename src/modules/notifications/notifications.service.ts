@@ -11,8 +11,8 @@ export class NotificationsService {
     private readonly gateway: NotificationsGateway,
   ) {}
 
-  async envoieNotify(dto: CreateNotificationDto) {
-    // cmhukhr6x0000q7l99zruwtly
+    // 🔔 Créer une notification pour 1 ou N utilisateurs et envoyer en temps réel
+  async envoieNotifyUsers(dto: CreateNotificationDto) {
     const notification = await this.prisma.notification.create({
       data: {
         type: dto.type,
@@ -35,33 +35,33 @@ export class NotificationsService {
     return notification;
   }
 
-  // 🔔 Créer une notification pour 1 ou N utilisateurs et envoyer en temps réel
-  async create(dto: CreateNotificationDto) {
-    const notification = await this.prisma.notification.create({
-      data: {
-        type: dto.type,
-        titre: dto.titre,
-        message: dto.message,
-        lien: dto.lien,
-        reference_id: dto.reference_id,
-        reference_type: dto.reference_type,
-        allUserNotifications: {
-          create: dto.userIds.map((userId) => ({
-            user: { connect: { id: userId } },
-          })),
-        },
-      },
-      include: { allUserNotifications: true },
-    });
 
+
+  async envoieNotifyOneUser(dto: Partial<CreateNotificationDto> & {userId: string}) {
+    
+    const  notification = await this.prisma.notification.create({
+        data: {
+          type: dto.type,
+          titre: dto.titre,
+          message: dto.message,
+          lien: dto.lien,
+          reference_id: dto.reference_id,
+          reference_type: dto.reference_type,
+          allUserNotifications: {
+            create: {
+              user: { connect: { id: dto.userId } },
+            },
+          },
+        },
+        include: { allUserNotifications: true },
+      });
+    
     const { allUserNotifications, ...notifData } = notification;
     // Envoi temps réel
-    dto.userIds.forEach((userId) => {
-      this.gateway.sendNotificationToUser(userId, notifData);
-    });
-
+    this.gateway.sendNotificationToUser(dto.userId, notifData);
     return notification;
   }
+
 
   // 📜 Liste des notifications pour un utilisateur
   async findByUser(userId: string) {

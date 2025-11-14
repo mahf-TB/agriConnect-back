@@ -113,6 +113,7 @@ enum Unite {
 // Enum pour le statut
 enum ProduitStatut {
   disponible
+  indisponible
   rupture
   archive
 }

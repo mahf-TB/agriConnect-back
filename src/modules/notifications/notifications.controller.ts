@@ -9,7 +9,7 @@ export class NotificationsController {
   // Créer une notification pour 1 ou plusieurs utilisateurs
   @Post()
   create(@Body() dto: CreateNotificationDto) {
-    return this.notificationService.create(dto);
+    return this.notificationService.envoieNotifyUsers(dto);
   }
 
   // Récupérer toutes les notifications d'un utilisateur

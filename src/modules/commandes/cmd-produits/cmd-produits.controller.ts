@@ -5,9 +5,10 @@ import { CreatePropositionDto } from './dto/create-proposition.dto';
 @Controller('commande-produits')
 export class CmdProduitsController {
   constructor(private readonly commandeProduitService: CmdProduitsService) {}
-  @Get('paysan/:paysanId')
-  async getCommandesByPaysan(@Param('paysanId') paysanId: string) {
-    return this.commandeProduitService.getCommandesByPaysan(paysanId);
+  @Get('paysan')
+  async getCommandesByPaysan(@Request() req: any) {
+    const paysanId = req.user.id;
+    return this.commandeProduitService.getCommandesReciviedByPaysan(paysanId);
   }
 
   @Post(':commandeId/propositions')

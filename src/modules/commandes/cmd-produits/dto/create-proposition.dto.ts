@@ -11,9 +11,9 @@ export class CreatePropositionDto {
   @Type(() => Number)
   quantite: number;
 
-//   @IsNumber()
-//   @IsNotEmpty()
-//   @Type(() => Number)
-//   prixUnitaire: number;
+  @IsNumber()
+  @IsNotEmpty()
+  @Type(() => Number)
+  prixUnitaire?: number;
 
 }

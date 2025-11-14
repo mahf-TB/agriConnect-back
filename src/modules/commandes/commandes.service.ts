@@ -104,7 +104,18 @@ export class CommandesService {
       const result = await this.prisma.$transaction(async (tx) => {
         return await this.executeOrderTransaction(tx, dto, existingProduit);
       });
-
+      // Envoi temps réel
+      const notificationData = {
+        type: NotificationType.commande,
+        titre: 'Nouvelle commande reçue',
+        message: `Une commande #${result?.commande?.id} a été enregistrée`,
+        lien: '/commandes/123',
+        reference_id: 'cmhumzo8r0001q7bwf9dxz7hj',
+        reference_type: 'commande',
+        userIds: [existingProduit.paysan.id],
+      };
+      // this.gateway.sendNotificationToUsers(dto.userIds, notifData);
+      await this.notifyService.envoieNotifyUsers(notificationData);
       this.logger.log(`Commande créée avec succès: ${result.id}`);
       return result;
     } catch (error) {
@@ -241,6 +252,83 @@ export class CommandesService {
     }
   }
 
+
+  /**
+   * Admin: Récupère TOUTES les commandes passées par les collecteurs
+   * Avec filtrage optionnel par statut, date, ou collecteur
+   * @param filters Critères de filtrage (statut, dateDebut, dateFin, collecteurId, produitRecherche)
+   * @param page Numéro de page (défaut: 1)
+   * @param limit Résultats par page (défaut: 20)
+   * @returns Commandes paginées
+   */
+  async findAllCommandesAdmin(
+    filters?: FilterCommandeDto & { collecteurId?: string },
+    page = 1,
+    limit = 20,
+  ): Promise<PaginatedResult<CleanCommande>> {
+    this.logger.debug(
+      `Admin - Récupération toutes les commandes, page: ${page}`,
+    );
+
+    const skip = (page - 1) * limit;
+    const {
+      statut,
+      produitRecherche,
+      territoire,
+      dateDebut,
+      dateFin,
+      collecteurId,
+    } = filters || {};
+
+    try {
+      // Construire la clause WHERE pour récupérer TOUTES les commandes (sans restriction par collecteur)
+      const whereCondition: any = {
+        ...(statut && { statut }),
+        ...(produitRecherche && {
+          produitRecherche: { contains: produitRecherche },
+        }),
+        ...(territoire && { territoire: { contains: territoire } }),
+        ...(collecteurId && { collecteurId }), // optionnel, filter par collecteur si fourni
+        ...(dateDebut &&
+          dateFin && {
+            createdAt: {
+              gte: new Date(dateDebut),
+              lte: new Date(dateFin),
+            },
+          }),
+      };
+
+      const [commandes, total] = await Promise.all([
+        this.prisma.commande.findMany({
+          where: whereCondition,
+          include: {
+            collecteur: true,
+            lignes: {
+              include: {
+                produit: true,
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take: limit,
+        }),
+        this.prisma.commande.count({ where: whereCondition }),
+      ]);
+
+      const cleaned = mapCommandesToClean(commandes);
+      return paginate(cleaned, total, { page, limit });
+    } catch (error) {
+      this.logger.error(
+        `Erreur récupération commandes admin: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        'Erreur lors de la récupération des commandes: ' + error.message,
+      );
+    }
+  }
+
   // ============================================================================
   // PRIVATE HELPER METHODS - Séparation des responsabilités
   // ============================================================================
@@ -291,7 +379,7 @@ export class CommandesService {
       userIds: uniqueFarmerIds,
     };
 
-    await this.notifyService.envoieNotify(notificationData);
+    await this.notifyService.envoieNotifyUsers(notificationData);
     this.logger.log(
       `Notifications envoyées à ${uniqueFarmerIds.length} paysans`,
     );
@@ -338,12 +426,18 @@ export class CommandesService {
       },
     });
 
+    let statutProduit = false;
+    if (Number(existingProduit.quantiteDisponible) - Number(dto.quantiteAccordee) <= 0) {
+      statutProduit = true;
+    }
+
     // 4️⃣ Mise à jour du stock
     await tx.produit.update({
       where: { id: dto.produitId },
       data: {
         quantiteDisponible:
           existingProduit.quantiteDisponible - dto.quantiteAccordee,
+          statut: statutProduit ? 'rupture' : existingProduit.statut,
       },
     });
 
@@ -435,7 +529,7 @@ export class CommandesService {
           '',
           paysanId,
         );
-        console.log("Commande : lat , lon :",cmd.latitude, cmd.longitude);
+        console.log('Commande : lat , lon :', cmd.latitude, cmd.longitude);
         return produitsTrouves.length > 0 ? cmd : null;
       }),
     );
@@ -470,7 +564,7 @@ export class CommandesService {
     rayonKm = 10,
     produitRecherche?: string,
     paysanId?: string,
-  ) {    
+  ) {
     // Récupérer les produits correspondants
     const produits = await this.prisma.produit.findMany({
       where: {
@@ -481,7 +575,6 @@ export class CommandesService {
       include: { paysan: true },
     });
 
-    
     // Filtrer par distance (Haversine)
     return produits.filter((prod) => {
       if (!prod.latitude || !prod.longitude) return false;
@@ -495,71 +588,5 @@ export class CommandesService {
 
       return distance <= rayonKm;
     });
-  }
-
-  /**
-   * Admin: Récupère TOUTES les commandes passées par les collecteurs
-   * Avec filtrage optionnel par statut, date, ou collecteur
-   * @param filters Critères de filtrage (statut, dateDebut, dateFin, collecteurId, produitRecherche)
-   * @param page Numéro de page (défaut: 1)
-   * @param limit Résultats par page (défaut: 20)
-   * @returns Commandes paginées
-   */
-  async findAllCommandesAdmin(
-    filters?: FilterCommandeDto & { collecteurId?: string },
-    page = 1,
-    limit = 20,
-  ): Promise<PaginatedResult<CleanCommande>> {
-    this.logger.debug(
-      `Admin - Récupération toutes les commandes, page: ${page}`,
-    );
-
-    const skip = (page - 1) * limit;
-    const { statut, produitRecherche, territoire, dateDebut, dateFin, collecteurId } = filters || {};
-
-    try {
-      // Construire la clause WHERE pour récupérer TOUTES les commandes (sans restriction par collecteur)
-      const whereCondition: any = {
-        ...(statut && { statut }),
-        ...(produitRecherche && { produitRecherche: { contains: produitRecherche } }),
-        ...(territoire && { territoire: { contains: territoire } }),
-        ...(collecteurId && { collecteurId }), // optionnel, filter par collecteur si fourni
-        ...(dateDebut && dateFin && {
-          createdAt: {
-            gte: new Date(dateDebut),
-            lte: new Date(dateFin),
-          },
-        }),
-      };
-
-      const [commandes, total] = await Promise.all([
-        this.prisma.commande.findMany({
-          where: whereCondition,
-          include: {
-            collecteur: true,
-            lignes: {
-              include: {
-                produit: true,
-              },
-            },
-          },
-          orderBy: { createdAt: 'desc' },
-          skip,
-          take: limit,
-        }),
-        this.prisma.commande.count({ where: whereCondition }),
-      ]);
-
-      const cleaned = mapCommandesToClean(commandes);
-      return paginate(cleaned, total, { page, limit });
-    } catch (error) {
-      this.logger.error(
-        `Erreur récupération commandes admin: ${error.message}`,
-        error.stack,
-      );
-      throw new BadRequestException(
-        'Erreur lors de la récupération des commandes: ' + error.message,
-      );
-    }
   }
 }

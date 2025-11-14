@@ -2,16 +2,24 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreatePropositionDto } from './dto/create-proposition.dto';
+import { NotificationType } from 'generated/enums';
+import { NotificationsService } from 'src/modules/notifications/notifications.service';
 
 @Injectable()
 export class CmdProduitsService {
-  constructor(private readonly prisma: PrismaService) {}
 
-  async getCommandesByPaysan(paysanId: string) {
+   private readonly logger = new Logger(CmdProduitsService.name);
+
+  constructor(private readonly prisma: PrismaService,
+     private readonly notifyService: NotificationsService
+  ) {}
+
+  async getCommandesReciviedByPaysan(paysanId: string) {
     // Vérifier si le paysan existe
     const paysanExists = await this.prisma.user.findUnique({
       where: { id: paysanId },
@@ -89,7 +97,7 @@ export class CmdProduitsService {
             paysanId: dto.paysanId,
             produitId: dto.produitId,
             quantiteAccordee: dto.quantite,
-            prixUnitaire: commande.prixUnitaire,
+            prixUnitaire: dto.prixUnitaire ?? commande.prixUnitaire,
           },
           include: { produit: true, paysan: true },
         });
@@ -107,6 +115,23 @@ export class CmdProduitsService {
           where: { id: commandeId },
           data: { statut: nouveauStatut },
         });
+
+          // Notifier le collecteur
+        try {
+          const notificationData = {
+            type: NotificationType.commande,
+            titre: 'Proposition reçue',
+            message: `Un paysan a proposé ${dto.quantite} ${commande.unite} pour votre demande de ${commande.produitRecherche}`,
+            lien: `/commandes/${commande.id}`,
+            reference_id: commande.id,
+            reference_type: 'commande',
+            userId: commande.collecteurId,
+          };
+          await this.notifyService.envoieNotifyOneUser(notificationData);
+        } catch (notifyErr) {
+          this.logger.warn(`Impossible d'envoyer notification au collecteur: ${notifyErr.message}`);
+        }
+
         // 9️⃣ Retourner le résultat
         return {
           message: 'Proposition enregistrée avec succès',
