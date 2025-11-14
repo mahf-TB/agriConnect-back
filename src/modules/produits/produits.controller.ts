@@ -50,7 +50,6 @@ export class ProduitsController {
   @Get()
   findAll(@Req() req, @Query() query) {
     const { page = 1, limit = 2, type, statut, paysanId, search } = query;
-    
     return this.produitService.findAll(
       req,
       {
@@ -64,7 +63,22 @@ export class ProduitsController {
     );
   }
 
-  
+  @Get('paysan')
+  getAllProduitPaysan(@Req() req: any, @Query() query: any) {
+    const { page = 1, limit = 2, type, statut, search } = query;
+    const paysanId = req.user.id;
+    return this.produitService.findAllProduitDuPaysan(
+      req,
+      {
+        type,
+        paysanId,
+        statut,
+        search,
+      },
+      Number(page),
+      Number(limit),
+    );
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req) {

@@ -19,7 +19,7 @@ export class NotificationGateway
     const userId = client.handshake.query.userId as string;
     if (userId) {
       this.clients.set(client.id, userId);
-      console.log(`✅ Notification: User ${userId} connected`);
+      console.log(`[WS] [Notification] User ${userId} connected`);
       console.log(`User connected :`, this.clients);
       
     }

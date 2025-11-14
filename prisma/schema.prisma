@@ -233,6 +233,35 @@ model UserNotification {
 }
 
 
+model Conversation {
+  id                   String     @id @default(cuid())
+  participant1Id       String
+  participant2Id       String
+  dernierMessageId     String?    @unique
+
+  messagesNonLusP1     Int        @default(0)
+  messagesNonLusP2     Int        @default(0)
+  dateDerniereActivite DateTime   @default(now())
+  archiveP1            Boolean    @default(false)
+  archiveP2            Boolean    @default(false)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+
+  participant1         User      @relation("Participant1", fields: [participant1Id], references: [id], onDelete: Cascade)
+  participant2         User      @relation("Participant2", fields: [participant2Id], references: [id], onDelete: Cascade)
+
+  // 👇 nommer la relation pour le dernier message
+  dernierMessage       Message?  @relation("DernierMessage", fields: [dernierMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  // 👇 nommer la relation pour tous les messages
+  messages             Message[] @relation("MessagesConversation")
+
+  @@unique([participant1Id, participant2Id])
+  @@index([participant1Id, participant2Id])
+}
+
+
+
 model Message {
   id             String         @id @default(cuid())
   expediteurId   String
@@ -264,31 +293,4 @@ enum MessageType {
   image
   video
   document
-}
-
-model Conversation {
-  id                   String     @id @default(cuid())
-  participant1Id       String
-  participant2Id       String
-  dernierMessageId     String?    @unique
-
-  messagesNonLusP1     Int        @default(0)
-  messagesNonLusP2     Int        @default(0)
-  dateDerniereActivite DateTime   @default(now())
-  archiveP1            Boolean    @default(false)
-  archiveP2            Boolean    @default(false)
-  createdAt            DateTime   @default(now())
-  updatedAt            DateTime   @updatedAt
-
-  participant1         User      @relation("Participant1", fields: [participant1Id], references: [id], onDelete: Cascade)
-  participant2         User      @relation("Participant2", fields: [participant2Id], references: [id], onDelete: Cascade)
-
-  // 👇 nommer la relation pour le dernier message
-  dernierMessage       Message?  @relation("DernierMessage", fields: [dernierMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  // 👇 nommer la relation pour tous les messages
-  messages             Message[] @relation("MessagesConversation")
-
-  @@unique([participant1Id, participant2Id])
-  @@index([participant1Id, participant2Id])
 }
