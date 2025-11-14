@@ -80,7 +80,9 @@ export class CommandesService {
    * @returns Commande avec ses lignes
    */
   async createCommandeProduit(dto: CreateOrderDto & { collecteurId: string }) {
-    this.logger.debug(`Création commande produit pour collecteur: ${dto.collecteurId}`);
+    this.logger.debug(
+      `Création commande produit pour collecteur: ${dto.collecteurId}`,
+    );
 
     try {
       // Validation du produit
@@ -146,7 +148,14 @@ export class CommandesService {
       const [commandes, total] = await Promise.all([
         this.prisma.commande.findMany({
           where: whereCondition,
-          include: { collecteur: true , lignes: true },
+          include: {
+            collecteur: true,
+            lignes: {
+              include: {
+                produit: true, // inclure le produit lié à chaque ligne
+              },
+            },
+          },
           orderBy: { createdAt: 'desc' },
           skip,
           take: limit,
@@ -182,7 +191,9 @@ export class CommandesService {
     page = 1,
     limit = 10,
   ): Promise<PaginatedResult<CleanCommande>> {
-    this.logger.debug(`Récupération demandes pour paysan: ${paysanId}, page: ${page}`);
+    this.logger.debug(
+      `Récupération demandes pour paysan: ${paysanId}, page: ${page}`,
+    );
 
     const skip = (page - 1) * limit;
     const { dateDebut, dateFin } = filters || {};
@@ -197,7 +208,11 @@ export class CommandesService {
       const [commandes, total] = await Promise.all([
         this.prisma.commande.findMany({
           where: whereCondition,
-          include: { lignes: true, collecteur: true },
+          include: { lignes: {
+      include: {
+        produit: true,     // inclure le produit lié à chaque ligne
+      },
+    }, collecteur: true },
           skip,
           take: limit,
         }),
@@ -341,7 +356,8 @@ export class CommandesService {
     existingProduit: any,
   ): 'en_attente' | 'acceptee' | 'partiellement_acceptee' {
     const priceMatches = priceUnitaire === existingProduit.prixUnitaire;
-    const partialQuantity = quantiteAccordee < existingProduit.quantiteDisponible;
+    const partialQuantity =
+      quantiteAccordee < existingProduit.quantiteDisponible;
 
     if (priceMatches && partialQuantity) {
       return 'partiellement_acceptee';
@@ -386,10 +402,7 @@ export class CommandesService {
   /**
    * Construit la clause WHERE pour les demandes ouvertes
    */
-  private buildDemandeWhereCondition(
-    dateDebut?: string,
-    dateFin?: string,
-  ) {
+  private buildDemandeWhereCondition(dateDebut?: string, dateFin?: string) {
     return {
       statut: { in: ['ouverte' as const, 'partiellement_fournie' as const] },
       ...(dateDebut &&
