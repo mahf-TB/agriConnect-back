@@ -154,7 +154,7 @@ export class UserService {
 
       // Supprimer l'ancien avatar s'il existe
       if (user.avatar) {
-        await deleteUploadedFile(user.avatar);
+         deleteUploadedFile(user.avatar);
       }
 
       // Mettre à jour avec le nouveau chemin
