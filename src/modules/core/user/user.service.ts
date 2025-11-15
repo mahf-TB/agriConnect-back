@@ -20,7 +20,7 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
 
-  ) {}
+  ) { }
 
   /**
    * Crée un nouvel utilisateur
@@ -29,7 +29,7 @@ export class UserService {
    */
   async create(data: CreateUserDto) {
     this.logger.debug(`Création utilisateur: ${data.email}`);
-    
+
     try {
       const hashedPassword = await hashPassword(data.mot_de_passe);
       const user = await this.prisma.user.create({
@@ -50,13 +50,18 @@ export class UserService {
    * Récupère tous les utilisateurs
    * @returns Liste des utilisateurs sans mots de passe
    */
-  async findAll(req :Request) {
+  async findAll(req: Request) {
     this.logger.debug('Récupération de tous les utilisateurs');
-    
+
     const users = await this.prisma.user.findMany();
 
-     const userSani = this.sanitizeUser(users);
-     return {...userSani, avatar : getFullUrl(req, userSani.avatar)}
+    // Appliquer sanitize + full URL à chaque utilisateur
+    const sanitizedUsers = users.map(user => ({
+      ...this.sanitizeUser(user),
+      avatar: user.avatar ? getFullUrl(req, user.avatar) : null,
+    }));
+
+    return sanitizedUsers; 
   }
 
   /**
@@ -66,7 +71,7 @@ export class UserService {
    */
   async findOne(id: string) {
     this.logger.debug(`Récupération utilisateur: ${id}`);
-    
+
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
@@ -96,7 +101,7 @@ export class UserService {
    */
   async update(id: string, data: UpdateUserDto) {
     this.logger.debug(`Mise à jour utilisateur: ${id}`);
-    
+
     try {
       const user = await this.prisma.user.update({
         where: { id },
@@ -118,11 +123,11 @@ export class UserService {
    */
   async remove(id: string) {
     this.logger.debug(`Suppression utilisateur: ${id}`);
-    
+
     try {
       // Récupérer l'utilisateur pour obtenir l'avatar
       const user = await this.prisma.user.findUnique({ where: { id } });
-      
+
       if (user?.avatar) {
         await deleteUploadedFile(user.avatar);
       }
@@ -143,11 +148,11 @@ export class UserService {
    */
   async updateAvatar(userId: string, newAvatarPath: string): Promise<any> {
     this.logger.debug(`Mise à jour avatar utilisateur: ${userId}`);
-    
+
     try {
       // Récupérer l'utilisateur pour obtenir l'ancien avatar
       const user = await this.prisma.user.findUnique({ where: { id: userId } });
-      
+
       if (!user) {
         throw new BadRequestException('Utilisateur non trouvé');
       }
@@ -178,10 +183,10 @@ export class UserService {
    */
   async removeAvatar(userId: string): Promise<any> {
     this.logger.debug(`Suppression avatar utilisateur: ${userId}`);
-    
+
     try {
       const user = await this.prisma.user.findUnique({ where: { id: userId } });
-      
+
       if (!user) {
         throw new BadRequestException('Utilisateur non trouvé');
       }
