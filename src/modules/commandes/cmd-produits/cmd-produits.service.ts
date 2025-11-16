@@ -9,6 +9,7 @@ import { PrismaService } from 'src/prisma.service';
 import { CreatePropositionDto } from './dto/create-proposition.dto';
 import { NotificationType } from 'generated/enums';
 import { NotificationsService } from 'src/modules/notifications/notifications.service';
+import { paginate, PaginatedResult, PaginationOptions } from 'src/common/utils/pagination';
 
 @Injectable()
 export class CmdProduitsService {
@@ -19,7 +20,7 @@ export class CmdProduitsService {
      private readonly notifyService: NotificationsService
   ) {}
 
-  async getCommandesReciviedByPaysan(paysanId: string) {
+  async getCommandesRecividedByPaysan(paysanId: string) {
     // Vérifier si le paysan existe
     const paysanExists = await this.prisma.user.findUnique({
       where: { id: paysanId },
@@ -34,9 +35,7 @@ export class CmdProduitsService {
         paysanId,
       },
       include: {
-        produit: {
-          select: { id: true, nom: true, imageUrl: true },
-        },
+        produit: true,
         commande: {
           select: {
             id: true,
@@ -65,6 +64,70 @@ export class CmdProduitsService {
 
     return commandes;
   }
+
+  async getCommandesReciviedByPaysan(
+  paysanId: string,
+  options: PaginationOptions,
+): Promise<PaginatedResult<any>> {
+  const { page = 1, limit = 10 } = options;
+
+  // Vérifier si le paysan existe
+  const paysanExists = await this.prisma.user.findUnique({
+    where: { id: paysanId },
+    select: { id: true },
+  });
+
+  if (!paysanExists) {
+    throw new NotFoundException(`Paysan avec l'id ${paysanId} introuvable`);
+  }
+
+  // Calcul du skip
+  const skip = (page - 1) * limit;
+
+  // Récupérer le total
+  const total = await this.prisma.commandeProduit.count({
+    where: { paysanId },
+  });
+
+  // Récupérer les données paginées
+  const commandes = await this.prisma.commandeProduit.findMany({
+    where: {
+      paysanId,
+    },
+    include: {
+      produit: true,
+      commande: {
+        select: {
+          id: true,
+          produitRecherche: true,
+          territoire: true,
+          quantiteTotal: true,
+          prixUnitaire: true,
+          statut: true,
+          messageCollecteur: true,
+          createdAt: true,
+          collecteur: {
+            select: {
+              id: true,
+              nom: true,
+              prenom: true,
+              telephone: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    skip,
+    take: limit,
+  });
+
+  // Utilisation de ton helper paginate()
+  return paginate(commandes, total, { page, limit });
+}
+
 
   async proposerProduit(
     commandeId: string,
