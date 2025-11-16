@@ -1,7 +1,9 @@
-import { Body, Controller, Get, Param, Post, Request } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Request, UseGuards } from '@nestjs/common';
 import { CmdProduitsService } from './cmd-produits.service';
 import { CreatePropositionDto } from './dto/create-proposition.dto';
+import { JwtAuthGuard } from 'src/modules/core/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('commande-produits')
 export class CmdProduitsController {
   constructor(private readonly commandeProduitService: CmdProduitsService) {}
