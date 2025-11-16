@@ -69,7 +69,9 @@ export class CmdProduitsService {
   paysanId: string,
   options: PaginationOptions,
 ): Promise<PaginatedResult<any>> {
-  const { page = 1, limit = 10 } = options;
+
+  const page = Number(options.page )|| 1;
+  const limit = Number(options.limit) || 10;
 
   // Vérifier si le paysan existe
   const paysanExists = await this.prisma.user.findUnique({

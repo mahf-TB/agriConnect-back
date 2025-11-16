@@ -20,7 +20,7 @@ export class CmdProduitsController {
   @Get('paysan')
   async getCommandesByPaysan(
     @Request() req: any,
-    @Query() query: PaginationOptions,
+    @Query() query: any,
   ) {
     const paysanId = req.user.id;
     return this.commandeProduitService.getCommandesReciviedByPaysan(paysanId, query);
