@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateDemandeDto } from './dto/create-demande.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -252,7 +257,6 @@ export class CommandesService {
     }
   }
 
-
   /**
    * Admin: Récupère TOUTES les commandes passées par les collecteurs
    * Avec filtrage optionnel par statut, date, ou collecteur
@@ -327,6 +331,44 @@ export class CommandesService {
         'Erreur lors de la récupération des commandes: ' + error.message,
       );
     }
+  }
+
+  async annulerCommande(
+    collecteurId: string,
+    commandeId: string,
+    raison?: string,
+  ) {
+    // 1️⃣ Vérifier que la commande existe et appartient bien au collecteur
+    const commande = await this.getCommandeForCollecteur(
+      collecteurId,
+      commandeId,
+    );
+
+    if (commande.statut === 'annulee') {
+      throw new BadRequestException('Commande déjà annulée');
+    }
+
+    // 2️⃣ Mettre à jour le statut global et les lignes dans une transaction
+    const updatedCommande = await this.prisma.$transaction(async (tx) => {
+      // Mettre à jour toutes les lignes associées
+      await tx.commandeProduit.updateMany({
+        where: { commandeId },
+        data: {
+          statutLigne: 'rejetée',
+        },
+      });
+
+      // Mettre à jour le statut global et le message du collecteur
+      return tx.commande.update({
+        where: { id: commandeId },
+        data: {
+          statut: 'annulee',
+          messageCollecteur: raison || 'Commande annulée par le collecteur',
+        },
+      });
+    });
+
+    return updatedCommande;
   }
 
   // ============================================================================
@@ -427,7 +469,11 @@ export class CommandesService {
     });
 
     let statutProduit = false;
-    if (Number(existingProduit.quantiteDisponible) - Number(dto.quantiteAccordee) <= 0) {
+    if (
+      Number(existingProduit.quantiteDisponible) -
+        Number(dto.quantiteAccordee) <=
+      0
+    ) {
       statutProduit = true;
     }
 
@@ -437,7 +483,7 @@ export class CommandesService {
       data: {
         quantiteDisponible:
           existingProduit.quantiteDisponible - dto.quantiteAccordee,
-          statut: statutProduit ? 'rupture' : existingProduit.statut,
+        statut: statutProduit ? 'rupture' : existingProduit.statut,
       },
     });
 
@@ -547,6 +593,25 @@ export class CommandesService {
     available: number,
   ): string {
     return `La quantité demandée (${requested}) dépasse le stock disponible (${available})`;
+  }
+
+  /**
+   * Vérifie que la commande existe et appartient bien au collecteur
+   */
+  private async getCommandeForCollecteur(
+    collecteurId: string,
+    commandeId: string,
+  ) {
+    const commande = await this.prisma.commande.findUnique({
+      where: { id: commandeId },
+      include: { lignes: true },
+    });
+
+    if (!commande || commande.collecteurId !== collecteurId) {
+      throw new NotFoundException('Commande introuvable pour ce collecteur');
+    }
+
+    return commande;
   }
 
   /**

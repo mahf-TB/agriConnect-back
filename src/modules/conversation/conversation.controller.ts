@@ -9,6 +9,7 @@ import {
   Req,
   UseGuards,
   BadRequestException,
+  Patch,
 } from '@nestjs/common';
 import { ConversationService } from './conversation.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
@@ -27,7 +28,10 @@ export class ConversationController {
 
   @Post('find-or-create')
   async findOrCreate(@Body() dto: CreateConversationDto) {
-    return this.conversationService.findOrCreate(dto.participant1Id, dto.participant2Id);
+    return this.conversationService.findOrCreate(
+      dto.participant1Id,
+      dto.participant2Id,
+    );
   }
 
   @Get()
@@ -50,13 +54,19 @@ export class ConversationController {
     const userId = req.user?.id;
     // Vérifier que l'utilisateur est participant
     if (conv.participant1Id !== userId && conv.participant2Id !== userId) {
-      throw new BadRequestException("Vous n'êtes pas participant de cette conversation");
+      throw new BadRequestException(
+        "Vous n'êtes pas participant de cette conversation",
+      );
     }
     return conv;
   }
 
   @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateConversationDto, @Req() req: any) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateConversationDto,
+    @Req() req: any,
+  ) {
     const userId = req.user?.id;
     if (!userId) throw new BadRequestException('Utilisateur non authentifié');
     return this.conversationService.update(id, dto, userId);
@@ -90,8 +100,19 @@ export class ConversationController {
     @Query('limit') limit = '20',
   ) {
     const pageNum = Math.max(1, parseInt(page as string) || 1);
-    const limitNum = Math.max(1, Math.min(100, parseInt(limit as string) || 20));
-    return this.conversationService.getMessagesWithPagination(id, pageNum, limitNum);
+    const limitNum = Math.max(
+      1,
+      Math.min(100, parseInt(limit as string) || 20),
+    );
+    return this.conversationService.getMessagesWithPagination(
+      id,
+      pageNum,
+      limitNum,
+    );
+  }
+
+  @Patch(':id/read')
+  async readConversation(@Param('id') id: string, @Req() req) {
+    return this.conversationService.markConversationAsRead(id, req.user.id);
   }
 }
-

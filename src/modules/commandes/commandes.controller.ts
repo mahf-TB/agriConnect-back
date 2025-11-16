@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Request,
@@ -27,14 +28,11 @@ export class CommandesController {
     return this.cmdService.createCommandeProduit({ ...dto, collecteurId });
   }
 
-
   @Post('demander')
   createDemande(@Body() dto: CreateDemandeDto, @Request() req: any) {
     const collecteurId = req.user.id;
     return this.cmdService.createDemande(collecteurId, dto);
   }
-
-
 
   @Get('collecteur/:collecteurId')
   async getAllCommandesCollecteur(
@@ -44,12 +42,10 @@ export class CommandesController {
     return this.cmdService.findAllCommandesCollecteur(collecteurId, filters);
   }
 
-
-
   @Get('paysan')
   async getAllDemandeAuxPaysan(
     @Query() filters: FilterCommandeDto,
-    @Request() req:any
+    @Request() req: any,
   ) {
     const paysanId = req.user.id;
     return this.cmdService.findAllDemandeAuxPaysan(paysanId, filters);
@@ -68,5 +64,13 @@ export class CommandesController {
     return this.cmdService.findAllCommandesAdmin(filters, pageNum, limitNum);
   }
 
-  
+  @Patch(':commandeId/annuler')
+  async annulerCommande(
+    @Param('commandeId') commandeId: string,
+    @Request() req, // req.user.id = collecteur
+    @Body('raison') raison?: string,
+  ) {
+    const collecteurId = req.user.id;
+    return this.cmdService.annulerCommande(collecteurId, commandeId, raison);
+  }
 }

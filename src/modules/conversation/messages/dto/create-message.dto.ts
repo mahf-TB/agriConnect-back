@@ -8,9 +8,9 @@ import {
 import { MessageType } from 'generated/enums';
 
 export class CreateMessageDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  expediteurId: string;
+  expediteurId?: string;
 
   @IsString()
   @IsNotEmpty()

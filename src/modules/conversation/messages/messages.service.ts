@@ -189,30 +189,6 @@ export class MessagesService {
     }
   }
 
-  /**
-   * Marquer tous les messages d'une conversation comme lus
-   */
-  async markConversationAsRead(conversationId: string, userId: string) {
-    try {
-      const updatedMessages = await this.prisma.message.updateMany({
-        where: {
-          conversationId,
-          destinataireId: userId,
-          lu: false,
-        },
-        data: {
-          lu: true,
-          dateLecture: new Date(),
-        },
-      });
-
-      return updatedMessages;
-    } catch (error) {
-      throw new BadRequestException(
-        `Erreur lors du marquage des messages comme lus : ${error.message}`,
-      );
-    }
-  }
 
   /**
    * Supprimer un message

@@ -11,7 +11,7 @@ export class NotificationsService {
     private readonly gateway: NotificationsGateway,
   ) {}
 
-    // 🔔 Créer une notification pour 1 ou N utilisateurs et envoyer en temps réel
+  // 🔔 Créer une notification pour 1 ou N utilisateurs et envoyer en temps réel
   async envoieNotifyUsers(dto: CreateNotificationDto) {
     const notification = await this.prisma.notification.create({
       data: {
@@ -35,33 +35,31 @@ export class NotificationsService {
     return notification;
   }
 
-
-
-  async envoieNotifyOneUser(dto: Partial<CreateNotificationDto> & {userId: string}) {
-    
-    const  notification = await this.prisma.notification.create({
-        data: {
-          type: dto.type,
-          titre: dto.titre,
-          message: dto.message,
-          lien: dto.lien,
-          reference_id: dto.reference_id,
-          reference_type: dto.reference_type,
-          allUserNotifications: {
-            create: {
-              user: { connect: { id: dto.userId } },
-            },
+  async envoieNotifyOneUser(
+    dto: Partial<CreateNotificationDto> & { userId: string },
+  ) {
+    const notification = await this.prisma.notification.create({
+      data: {
+        type: dto.type,
+        titre: dto.titre,
+        message: dto.message,
+        lien: dto.lien,
+        reference_id: dto.reference_id,
+        reference_type: dto.reference_type,
+        allUserNotifications: {
+          create: {
+            user: { connect: { id: dto.userId } },
           },
         },
-        include: { allUserNotifications: true },
-      });
-    
+      },
+      include: { allUserNotifications: true },
+    });
+
     const { allUserNotifications, ...notifData } = notification;
     // Envoi temps réel
     this.gateway.sendNotificationToUser(dto.userId, notifData);
     return notification;
   }
-
 
   // 📜 Liste des notifications pour un utilisateur
   async findByUser(userId: string) {
@@ -77,6 +75,23 @@ export class NotificationsService {
     return this.prisma.userNotification.update({
       where: { id: userNotificationId },
       data: { lu: true, dateLecture: new Date() },
+    });
+  }
+
+  async getUnreadCount(userId: string): Promise<number> {
+    return this.prisma.userNotification.count({
+      where: {
+        userId,
+        lu: false,
+      },
+    });
+  }
+
+  async getNotifyUnread(userId: string) {
+    return this.prisma.userNotification.findMany({
+      where: { userId, lu: false },
+      include: { notification: true },
+      orderBy: { notification: { createdAt: 'desc' } },
     });
   }
 }

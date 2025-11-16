@@ -3,8 +3,10 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
+  Req,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -18,12 +20,12 @@ import { PaginationOptions } from 'src/common/utils/pagination';
 export class CmdProduitsController {
   constructor(private readonly commandeProduitService: CmdProduitsService) {}
   @Get('paysan')
-  async getCommandesByPaysan(
-    @Request() req: any,
-    @Query() query: any,
-  ) {
+  async getCommandesByPaysan(@Request() req: any, @Query() query: any) {
     const paysanId = req.user.id;
-    return this.commandeProduitService.getCommandesReciviedByPaysan(paysanId, query);
+    return this.commandeProduitService.getCommandesReciviedByPaysan(
+      paysanId,
+      query,
+    );
   }
 
   @Post(':commandeId/propositions')
@@ -37,5 +39,34 @@ export class CmdProduitsController {
       ...dto,
       paysanId,
     });
+  }
+
+  // ==================================================
+  // Accepter une commande
+  // ==================================================
+  @Patch(':commandeId/accepter')
+  async accepterCommande(
+    @Param('commandeId') commandeId: string,
+    @Req() req, // req.user.id contient l'id du paysan connecté
+  ) {
+    const paysanId = req.user.id;
+    return this.commandeProduitService.accepterCommande(paysanId, commandeId);
+  }
+
+  // ==================================================
+  // Refuser une commande
+  // ==================================================
+  @Patch(':commandeId/refuser')
+  async refuserCommande(
+    @Param('commandeId') commandeId: string,
+    @Body('raison') raison: string, // optionnel
+    @Req() req,
+  ) {
+    const paysanId = req.user.id;
+    return this.commandeProduitService.refuserCommande(
+      paysanId,
+      commandeId,
+      raison,
+    );
   }
 }

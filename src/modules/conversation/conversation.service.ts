@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
@@ -62,10 +63,7 @@ export class ConversationService {
         },
       });
 
-      
       return conversation;
-
-
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
@@ -112,7 +110,7 @@ export class ConversationService {
   /**
    * Récupérer toutes les conversations d'un utilisateur
    */
-  async findByUserId(userId: string , req?: any) {
+  async findByUserId(userId: string, req?: any) {
     try {
       const conversations = await this.prisma.conversation.findMany({
         where: {
@@ -140,14 +138,20 @@ export class ConversationService {
         const conv: any = { ...c };
 
         if (conv.participant1 && 'mot_de_passe' in conv.participant1) {
-          const { mot_de_passe, avatar , ...rest } = conv.participant1;
+          const { mot_de_passe, avatar, ...rest } = conv.participant1;
 
-          conv.participant1 = {...rest, avatar: avatar ? getFullUrl(req, avatar) : null };
+          conv.participant1 = {
+            ...rest,
+            avatar: avatar ? getFullUrl(req, avatar) : null,
+          };
         }
 
         if (conv.participant2 && 'mot_de_passe' in conv.participant2) {
           const { mot_de_passe, avatar, ...rest } = conv.participant2;
-          conv.participant2 = {...rest, avatar: avatar ? getFullUrl(req, avatar) : null };
+          conv.participant2 = {
+            ...rest,
+            avatar: avatar ? getFullUrl(req, avatar) : null,
+          };
         }
 
         if (
@@ -155,8 +159,12 @@ export class ConversationService {
           conv.dernierMessage.expediteur &&
           'mot_de_passe' in conv.dernierMessage.expediteur
         ) {
-          const { mot_de_passe, avatar, ...rest } = conv.dernierMessage.expediteur;
-          conv.dernierMessage.expediteur = {...rest, avatar: avatar ? getFullUrl(req, avatar) : null };
+          const { mot_de_passe, avatar, ...rest } =
+            conv.dernierMessage.expediteur;
+          conv.dernierMessage.expediteur = {
+            ...rest,
+            avatar: avatar ? getFullUrl(req, avatar) : null,
+          };
         }
 
         return conv;
@@ -169,6 +177,83 @@ export class ConversationService {
       );
     }
   }
+
+
+
+
+  /**
+   * Marquer toute une conversation comme lue
+   */
+
+  async markConversationAsRead(conversationId: string, userId: string) {
+    return await this.prisma.$transaction(async (tx) => {
+      // 1️⃣ Récupérer la conversation
+      const conversation = await tx.conversation.findUnique({
+        where: { id: conversationId },
+      });
+
+      if (!conversation) {
+        throw new NotFoundException('Conversation introuvable');
+      }
+
+      // 2️⃣ Déterminer si l'utilisateur est P1 ou P2
+      let isP1 = false;
+      let isP2 = false;
+
+      if (conversation.participant1Id === userId) {
+        isP1 = true;
+      } else if (conversation.participant2Id === userId) {
+        isP2 = true;
+      } else {
+        throw new ForbiddenException(
+          'Vous ne faites pas partie de cette conversation',
+        );
+      }
+
+      const now = new Date();
+
+      // 3️⃣ Marquer tous les messages non lus destinés à ce user comme lus
+      const updateMessages = await tx.message.updateMany({
+        where: {
+          conversationId,
+          destinataireId: userId,
+          lu: false,
+        },
+        data: {
+          lu: true,
+          dateLecture: now,
+        },
+      });
+
+      // 4️⃣ Remettre à zéro les compteurs
+      await tx.conversation.update({
+        where: { id: conversationId },
+        data: {
+          messagesNonLusP1: isP1 ? 0 : undefined,
+          messagesNonLusP2: isP2 ? 0 : undefined,
+          dateDerniereActivite: now,
+        },
+      });
+
+      // 5️⃣ (Optionnel) — Notifier en temps réel
+      // this.gateway.server
+      //   .to(conversationId)
+      //   .emit("conversation_read", {
+      //     conversationId,
+      //     userId,
+      //     readAt: now,
+      //     updatedMessages: updateMessages.count,
+      //   });
+
+      return {
+        conversationId,
+        readAt: now,
+        updatedMessages: updateMessages.count,
+      };
+    });
+  }
+
+  
 
   /**
    * Récupérer les conversations archivées d'un utilisateur
@@ -454,4 +539,5 @@ export class ConversationService {
       );
     }
   }
+
 }

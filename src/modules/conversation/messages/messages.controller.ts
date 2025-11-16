@@ -32,7 +32,7 @@ export class MessagesController {
    */
   @Post()
   async create(@Body() dto: CreateMessageDto, @Req() req: any) {
-    const expediteurId = req.user?.id;
+    const expediteurId = req.user.id;
     if (!expediteurId) throw new BadRequestException('Utilisateur non authentifié');
 
     // Empêcher usurpation : forcer l'expediteur
@@ -127,22 +127,6 @@ export class MessagesController {
     return this.messagesService.markAsRead(id);
   }
 
-  /**
-   * Marquer tous les messages d'une conversation comme lus (utilisateur connecté)
-   */
-  @Post('conversation/:conversationId/read')
-  async markConversationAsRead(@Param('conversationId') conversationId: string, @Req() req: any) {
-    const userId = req.user?.id;
-    if (!userId) throw new BadRequestException('Utilisateur non authentifié');
-
-    // Vérifier participation
-    const conv = await this.conversationService.findOne(conversationId);
-    if (conv.participant1Id !== userId && conv.participant2Id !== userId) {
-      throw new ForbiddenException("Vous n'êtes pas participant de cette conversation");
-    }
-
-    return this.messagesService.markConversationAsRead(conversationId, userId);
-  }
 
   /**
    * Supprimer un message (seul expéditeur ou admin)

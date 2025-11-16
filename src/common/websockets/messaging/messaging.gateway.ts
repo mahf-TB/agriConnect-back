@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { SubscribeMessage, MessageBody, ConnectedSocket } from '@nestjs/websockets';
+import {
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
+} from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { BaseGateway } from '../base/base.gateway';
 import { WebsocketConnectionService } from '../websocket-connection.service';
@@ -28,26 +32,28 @@ export class MessagingGateway extends BaseGateway {
   ) {
     try {
       this.logger.debug(
-        `📨 Message reçu de ${payload.senderId} → ${payload.receiverId}: "${payload.content}"`
+        `📨 Message reçu de ${payload.senderId} → ${payload.receiverId}: "${payload.content}"`,
       );
 
       // TODO: Optionnel : sauvegarder le message en DB ici
       // await this.messageService.create(payload);
 
       // Envoyer le message au destinataire
-      this.wsConnection.sendToUser(payload.receiverId, 'newMessage', {
+      this.wsConnection.sendToUser(payload.receiverId, 'message:created', {
         from: payload.senderId,
         content: payload.content,
         conversationId: payload.conversationId || null,
         metadata: payload.metadata || null,
         timestamp: Date.now(),
       });
-      
 
       // Retour au front (ACK)
       return { status: 'ok', message: 'Message delivered' };
     } catch (error) {
-      this.logger.error(`❌ Erreur handleSendMessage: ${error.message}`, error.stack);
+      this.logger.error(
+        `❌ Erreur handleSendMessage: ${error.message}`,
+        error.stack,
+      );
       return { status: 'error', message: 'Message not delivered' };
     }
   }
@@ -71,7 +77,10 @@ export class MessagingGateway extends BaseGateway {
 
       return { status: 'ok', message: `Joined ${room}` };
     } catch (error) {
-      this.logger.error(`❌ Erreur handleJoinConversation: ${error.message}`, error.stack);
+      this.logger.error(
+        `❌ Erreur handleJoinConversation: ${error.message}`,
+        error.stack,
+      );
       return { status: 'error', message: 'Could not join conversation' };
     }
   }
@@ -95,8 +104,69 @@ export class MessagingGateway extends BaseGateway {
 
       return { status: 'ok', message: `Left ${room}` };
     } catch (error) {
-      this.logger.error(`❌ Erreur handleLeaveConversation: ${error.message}`, error.stack);
+      this.logger.error(
+        `❌ Erreur handleLeaveConversation: ${error.message}`,
+        error.stack,
+      );
       return { status: 'error', message: 'Could not leave conversation' };
+    }
+  }
+
+  @SubscribeMessage('message:read')
+  async handleMessageRead(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    payload: {
+      conversationId: string;
+      readerId: string;
+    },
+  ) {
+    try {
+      const { conversationId, readerId } = payload;
+
+      this.logger.debug(
+        `👁️  Messages lus dans conversation ${conversationId} par ${readerId}`,
+      );
+
+      // ======================================================
+      // 1️⃣ Notifier la room (tous les membres connectés)
+      // ======================================================
+      this.wsConnection.sendToRoom(
+        `conversation_${conversationId}`,
+        'conversation_read',
+        {
+          conversationId,
+          readerId,
+          timestamp: Date.now(),
+        },
+      );
+
+      // ======================================================
+      // 2️⃣ Notifier l'autre participant directement
+      // ======================================================
+      // On doit deviner l'autre utilisateur → tu m'as donné seulement readerId
+      // Donc c'est le service métier qui DOIT appeler cette méthode
+      // mais pour garder ton architecture, on utilise un helper WS :
+
+      // this.wsConnection.broadcastToOthersInRoom(
+      //   `conversation_${conversationId}`,
+      //   client.id,
+      //   'messageRead',
+      //   {
+      //     conversationId,
+      //     readerId,
+      //     timestamp: Date.now(),
+      //   },
+      // );
+
+      // ACK pour le front
+      return { status: 'ok', message: 'Read event broadcasted' };
+    } catch (error) {
+      this.logger.error(
+        `❌ Erreur handleMessageRead: ${error.message}`,
+        error.stack,
+      );
+      return { status: 'error', message: 'Could not process read event' };
     }
   }
 
@@ -109,17 +179,19 @@ export class MessagingGateway extends BaseGateway {
     @MessageBody() payload: { room: string; content: string; senderId: string },
   ) {
     try {
-      this.logger.debug(`📨 Broadcast message to room ${payload.room}: ${payload.content}`);
+      this.logger.debug(
+        `📨 Broadcast message to room ${payload.room}: ${payload.content}`,
+      );
 
-      this.wsConnection.sendToRoom(payload.room,'newMessage',{
+      this.wsConnection.sendToRoom(payload.room, 'newMessage', {
         from: payload.senderId,
         content: payload.content,
         timestamp: Date.now(),
-      })
+      });
     } catch (error) {
       this.logger.error(
         `❌ Erreur handleSendMessageToRoom: ${error.message}`,
-        error.stack
+        error.stack,
       );
     }
   }

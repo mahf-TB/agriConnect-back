@@ -1,7 +1,18 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
+import { JwtAuthGuard } from '../core/auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('notifications')
 export class NotificationsController {
   constructor(private readonly notificationService: NotificationsService) {}
@@ -13,15 +24,30 @@ export class NotificationsController {
   }
 
   // Récupérer toutes les notifications d'un utilisateur
-  @Get('user/:id')
-  findByUser(@Param('id') id: string) {
-    return this.notificationService.findByUser(id);
+  @Get()
+  findByUser(@Req() req: any) {
+    const userId = req.user.id;
+    return this.notificationService.findByUser(userId);
   }
 
+  @Get('unread-count')
+  getUnreadCount(@Req() req) {
+    const userId = req.user.id;
+    return this.notificationService.getUnreadCount(userId);
+  }
+  @Get('unread')
+  getNotifyUnread(@Req() req) {
+    const userId = req.user.id;
+    return this.notificationService.getNotifyUnread(userId);
+  }
 
   // Marquer une notification comme lue
-  @Patch(':id/lu')
+  @Patch(':id/read')
   markAsRead(@Param('id') id: string) {
     return this.notificationService.markAsRead(id);
+  }
+  @Patch('read-all')
+  markAllAsRead() {
+    // return this.notificationService.markAsRead(id);
   }
 }

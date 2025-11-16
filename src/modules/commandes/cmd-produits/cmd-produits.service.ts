@@ -9,15 +9,19 @@ import { PrismaService } from 'src/prisma.service';
 import { CreatePropositionDto } from './dto/create-proposition.dto';
 import { NotificationType } from 'generated/enums';
 import { NotificationsService } from 'src/modules/notifications/notifications.service';
-import { paginate, PaginatedResult, PaginationOptions } from 'src/common/utils/pagination';
+import {
+  paginate,
+  PaginatedResult,
+  PaginationOptions,
+} from 'src/common/utils/pagination';
 
 @Injectable()
 export class CmdProduitsService {
+  private readonly logger = new Logger(CmdProduitsService.name);
 
-   private readonly logger = new Logger(CmdProduitsService.name);
-
-  constructor(private readonly prisma: PrismaService,
-     private readonly notifyService: NotificationsService
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notifyService: NotificationsService,
   ) {}
 
   async getCommandesRecividedByPaysan(paysanId: string) {
@@ -30,6 +34,69 @@ export class CmdProduitsService {
       throw new NotFoundException(`Paysan avec l'id ${paysanId} introuvable`);
     }
     // Récupérer toutes les lignes de commande liées à ce paysan
+    const commandes = await this.prisma.commandeProduit.findMany({
+      where: {
+        paysanId,
+      },
+      include: {
+        produit: true,
+        commande: {
+          select: {
+            id: true,
+            produitRecherche: true,
+            territoire: true,
+            quantiteTotal: true,
+            prixUnitaire: true,
+            statut: true,
+            adresseLivraison: true,
+            dateLivraisonPrevue: true,
+            messageCollecteur: true,
+            createdAt: true,
+            collecteur: {
+              select: {
+                id: true,
+                nom: true,
+                prenom: true,
+                telephone: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return commandes;
+  }
+
+  async getCommandesReciviedByPaysan(
+    paysanId: string,
+    options: PaginationOptions,
+  ): Promise<PaginatedResult<any>> {
+    const page = Number(options.page) || 1;
+    const limit = Number(options.limit) || 10;
+
+    // Vérifier si le paysan existe
+    const paysanExists = await this.prisma.user.findUnique({
+      where: { id: paysanId },
+      select: { id: true },
+    });
+
+    if (!paysanExists) {
+      throw new NotFoundException(`Paysan avec l'id ${paysanId} introuvable`);
+    }
+
+    // Calcul du skip
+    const skip = (page - 1) * limit;
+
+    // Récupérer le total
+    const total = await this.prisma.commandeProduit.count({
+      where: { paysanId },
+    });
+
+    // Récupérer les données paginées
     const commandes = await this.prisma.commandeProduit.findMany({
       where: {
         paysanId,
@@ -60,76 +127,13 @@ export class CmdProduitsService {
       orderBy: {
         createdAt: 'desc',
       },
+      skip,
+      take: limit,
     });
 
-    return commandes;
+    // Utilisation de ton helper paginate()
+    return paginate(commandes, total, { page, limit });
   }
-
-  async getCommandesReciviedByPaysan(
-  paysanId: string,
-  options: PaginationOptions,
-): Promise<PaginatedResult<any>> {
-
-  const page = Number(options.page )|| 1;
-  const limit = Number(options.limit) || 10;
-
-  // Vérifier si le paysan existe
-  const paysanExists = await this.prisma.user.findUnique({
-    where: { id: paysanId },
-    select: { id: true },
-  });
-
-  if (!paysanExists) {
-    throw new NotFoundException(`Paysan avec l'id ${paysanId} introuvable`);
-  }
-
-  // Calcul du skip
-  const skip = (page - 1) * limit;
-
-  // Récupérer le total
-  const total = await this.prisma.commandeProduit.count({
-    where: { paysanId },
-  });
-
-  // Récupérer les données paginées
-  const commandes = await this.prisma.commandeProduit.findMany({
-    where: {
-      paysanId,
-    },
-    include: {
-      produit: true,
-      commande: {
-        select: {
-          id: true,
-          produitRecherche: true,
-          territoire: true,
-          quantiteTotal: true,
-          prixUnitaire: true,
-          statut: true,
-          messageCollecteur: true,
-          createdAt: true,
-          collecteur: {
-            select: {
-              id: true,
-              nom: true,
-              prenom: true,
-              telephone: true,
-            },
-          },
-        },
-      },
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-    skip,
-    take: limit,
-  });
-
-  // Utilisation de ton helper paginate()
-  return paginate(commandes, total, { page, limit });
-}
-
 
   async proposerProduit(
     commandeId: string,
@@ -181,7 +185,7 @@ export class CmdProduitsService {
           data: { statut: nouveauStatut },
         });
 
-          // Notifier le collecteur
+        // Notifier le collecteur
         try {
           const notificationData = {
             type: NotificationType.commande,
@@ -194,7 +198,9 @@ export class CmdProduitsService {
           };
           await this.notifyService.envoieNotifyOneUser(notificationData);
         } catch (notifyErr) {
-          this.logger.warn(`Impossible d'envoyer notification au collecteur: ${notifyErr.message}`);
+          this.logger.warn(
+            `Impossible d'envoyer notification au collecteur: ${notifyErr.message}`,
+          );
         }
 
         // 9️⃣ Retourner le résultat
@@ -211,6 +217,123 @@ export class CmdProduitsService {
     }
   }
 
+  // ==================================================
+  // Accepter une commande
+  // ==================================================
+  async accepterCommande(paysanId: string, commandeId: string) {
+    // Récupérer la ligne de commande du paysan pour cette commande
+    const ligne = await this.getCommandeProduitForPaysanCommande(
+      paysanId,
+      commandeId,
+    );
 
-  
+    if (ligne.statutLigne === 'acceptee') {
+      throw new BadRequestException('Cette ligne est déjà acceptée');
+    }
+    if (ligne.statutLigne === 'rejetée') {
+      throw new BadRequestException('Cette ligne a déjà été refusée');
+    }
+
+    return this.updateLigneStatut(ligne.id, 'acceptee');
+  }
+
+  // ==================================================
+  // Refuser une commande
+  // ==================================================
+  async refuserCommande(
+    paysanId: string,
+    commandeProduitId: string,
+    raison?: string,
+  ) {
+    const ligne = await this.getCommandeProduitForPaysanCommande(
+      paysanId,
+      commandeProduitId,
+    );
+
+    if (ligne.statutLigne === 'acceptee') {
+      throw new BadRequestException('Cette ligne est déjà acceptée');
+    }
+    if (ligne.statutLigne === 'rejetée') {
+      throw new BadRequestException('Cette ligne a déjà été refusée');
+    }
+
+    return this.updateLigneStatut(ligne.id, 'rejetée', raison);
+  }
+
+  // ==================================================
+  // ------------------ Private ----------------------
+  // ==================================================
+
+  /**
+   * Vérifie que la ligne existe et appartient bien au paysan
+   * @param paysanId ID du paysan
+   * @param commandeId ID de la commande
+   * @returns Ligne de commande
+   */
+  private async getCommandeProduitForPaysanCommande(
+    paysanId: string,
+    commandeId: string,
+  ) {
+    const ligne = await this.prisma.commandeProduit.findFirst({
+      where: {
+        paysanId,
+        commandeId,
+      },
+      include: { commande: true },
+    });
+
+    if (!ligne) {
+      throw new NotFoundException(
+        'Commande introuvable pour ce paysan ou non attribuée',
+      );
+    }
+
+    return ligne;
+  }
+
+  /**
+   * Met à jour le statut d'une ligne de commande
+   * et éventuellement le statut global de la commande
+   * @param commandeProduitId ID de la ligne de commande
+   * @param statutLigne Nouveau statut de la ligne
+   * @param raison Raison du refus (optionnel)
+   */
+  private async updateLigneStatut(
+    commandeProduitId: string,
+    statutLigne: 'acceptee' | 'partiellement_acceptee' | 'livree' | 'rejetée',
+    raison?: string,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      // 1️⃣ Mise à jour de la ligne
+      const updatedLigne = await tx.commandeProduit.update({
+        where: { id: commandeProduitId },
+        data: {
+          statutLigne,
+        },
+      });
+
+      // 2️⃣ Vérifier si toutes les lignes ont été traitées
+      const lignes = await tx.commandeProduit.findMany({
+        where: { commandeId: updatedLigne.commandeId },
+      });
+
+      const allAccepted = lignes.every((l) => l.statutLigne === 'acceptee' || l.statutLigne === 'partiellement_acceptee');
+      const allRefused = lignes.every((l) => l.statutLigne === 'rejetée');
+
+      // 3️⃣ Mettre à jour le statut global de la commande si nécessaire
+      if (allAccepted) {
+        await tx.commande.update({
+          where: { id: updatedLigne.commandeId },
+          data: { statut: 'acceptee' },
+        });
+      } else if (allRefused) {
+        await tx.commande.update({
+          where: { id: updatedLigne.commandeId },
+          data: { statut: 'annulee' },
+        });
+      }
+
+      return updatedLigne;
+    });
+  }
 }
