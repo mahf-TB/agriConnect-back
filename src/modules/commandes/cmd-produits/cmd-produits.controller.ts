@@ -14,12 +14,15 @@ export class CmdProduitsController {
   }
 
   @Post(':commandeId/propositions')
-async proposerProduit(
-  @Param('commandeId') commandeId: string,
-  @Body() dto: CreatePropositionDto,
-  @Request() req: any,
-) {
+  async proposerProduit(
+    @Param('commandeId') commandeId: string,
+    @Body() dto: CreatePropositionDto,
+    @Request() req: any,
+  ) {
     const paysanId = req.user.id;
-  return this.commandeProduitService.proposerProduit(commandeId, {...dto, paysanId });
-}
+    return this.commandeProduitService.proposerProduit(commandeId, {
+      ...dto,
+      paysanId,
+    });
+  }
 }
