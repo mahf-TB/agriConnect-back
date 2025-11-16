@@ -57,6 +57,7 @@ export abstract class BaseGateway
   protected extractUserIdFromHandshake(client: Socket): string | null {
     try {
       const userId = client.handshake.query.userId as string;
+      // client.handshake.auth?.userId || client.handshake.query.userId
       return userId && userId.trim() ? userId.trim() : null;
     } catch (error) {
       this.logger.error(

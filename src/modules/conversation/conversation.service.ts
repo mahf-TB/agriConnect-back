@@ -23,7 +23,9 @@ export class ConversationService {
       ]);
 
       if (!participant1 || !participant2) {
-        throw new BadRequestException('Un ou les deux participants non trouvés');
+        throw new BadRequestException(
+          'Un ou les deux participants non trouvés',
+        );
       }
 
       if (dto.participant1Id === dto.participant2Id) {
@@ -170,46 +172,52 @@ export class ConversationService {
   /**
    * Trouver ou créer une conversation entre deux utilisateurs
    */
-//   async findOrCreate(participant1Id: string, participant2Id: string) {
-//     try {
-//       // Vérifier l'existence d'une conversation
-//       let conversation = await this.prisma.conversation.findUnique({
-//         where: {
-//           participant1Id_participant2Id: {
-//             participant1Id,
-//             participant2Id,
-//           },
-//         },
-//         include: {
-//           participant1: true,
-//           participant2: true,
-//         },
-//       });
+  async findOrCreate(participant1Id: string, participant2Id: string) {
+    try {
+      // Vérifier l'existence d'une conversation
+      let conversation = await this.prisma.conversation.findUnique({
+        where: {
+          participant1Id_participant2Id: {
+            participant1Id,
+            participant2Id,
+          },
+        },
+        include: {
+          participant1: true,
+          participant2: true,
+        },
+      });
 
-//       // Si elle n'existe pas, la créer
-//       if (!conversation) {
-//         conversation = await this.prisma.conversation.create({
-//           participant1Id,
-//           participant2Id,
-//         });
-//       }
+      // Si elle existe, retourner la conversation existante
+      if (conversation) {
+        return conversation;
+      }
 
-//       return conversation;
-//     } catch (error) {
-//       throw new BadRequestException(
-//         `Erreur lors de la recherche/création de la conversation : ${error.message}`,
-//       );
-//     }
-//   }
+      //  return await this.prisma.conversation.create({
+      //     participant1Id,
+      //     participant2Id
+      //   });
+      return await this.prisma.conversation.create({
+        data: {
+          participant1Id,
+          participant2Id,
+        },
+        include: {
+          participant1: true,
+          participant2: true,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException(
+        `Erreur lors de la recherche/création de la conversation : ${error.message}`,
+      );
+    }
+  }
 
   /**
    * Mettre à jour une conversation (archivage, etc.)
    */
-  async update(
-    id: string,
-    dto: UpdateConversationDto,
-    userId: string,
-  ) {
+  async update(id: string, dto: UpdateConversationDto, userId: string) {
     try {
       const conversation = await this.findOne(id);
 
@@ -219,7 +227,7 @@ export class ConversationService {
 
       if (!isParticipant1 && !isParticipant2) {
         throw new BadRequestException(
-          'Vous n\'êtes pas participant de cette conversation',
+          "Vous n'êtes pas participant de cette conversation",
         );
       }
 
@@ -294,7 +302,7 @@ export class ConversationService {
 
       if (!isParticipant1 && !isParticipant2) {
         throw new BadRequestException(
-          'Vous n\'êtes pas participant de cette conversation',
+          "Vous n'êtes pas participant de cette conversation",
         );
       }
 
