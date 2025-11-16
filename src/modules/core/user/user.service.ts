@@ -17,10 +17,7 @@ import { Request } from 'express';
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-
-  ) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Crée un nouvel utilisateur
@@ -41,8 +38,13 @@ export class UserService {
 
       return this.sanitizeUser(user);
     } catch (error) {
-      this.logger.error(`Erreur création utilisateur: ${error.message}`, error.stack);
-      throw new BadRequestException('Erreur lors de la création de l\'utilisateur');
+      this.logger.error(
+        `Erreur création utilisateur: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        "Erreur lors de la création de l'utilisateur",
+      );
     }
   }
 
@@ -56,12 +58,12 @@ export class UserService {
     const users = await this.prisma.user.findMany();
 
     // Appliquer sanitize + full URL à chaque utilisateur
-    const sanitizedUsers = users.map(user => ({
+    const sanitizedUsers = users.map((user) => ({
       ...this.sanitizeUser(user),
       avatar: user.avatar ? getFullUrl(req, user.avatar) : null,
     }));
 
-    return sanitizedUsers; 
+    return sanitizedUsers;
   }
 
   /**
@@ -110,8 +112,13 @@ export class UserService {
 
       return this.sanitizeUser(user);
     } catch (error) {
-      this.logger.error(`Erreur mise à jour utilisateur: ${error.message}`, error.stack);
-      throw new BadRequestException('Erreur lors de la mise à jour de l\'utilisateur');
+      this.logger.error(
+        `Erreur mise à jour utilisateur: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        "Erreur lors de la mise à jour de l'utilisateur",
+      );
     }
   }
 
@@ -134,8 +141,45 @@ export class UserService {
 
       return await this.prisma.user.delete({ where: { id } });
     } catch (error) {
-      this.logger.error(`Erreur suppression utilisateur: ${error.message}`, error.stack);
-      throw new BadRequestException('Erreur lors de la suppression de l\'utilisateur');
+      this.logger.error(
+        `Erreur suppression utilisateur: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        "Erreur lors de la suppression de l'utilisateur",
+      );
+    }
+  }
+
+  /**
+   * Supprime un utilisateur
+   * Supprime aussi son avatar s'il existe
+   * @param id ID de l'utilisateur
+   * @returns Utilisateur supprimé
+   */
+  async suspend(id: string) {
+    this.logger.debug(`Suspendre utilisateur: ${id}`);
+
+    try {
+      // Récupérer l'utilisateur pour obtenir l'avatar
+      const user = await this.findOne(id);
+
+      if (!user) {
+        throw new BadRequestException('Utilisateur non trouvé');
+      }
+
+      return await this.prisma.user.update({
+        where: { id },
+        data: { statut: "suspendu" },
+      });
+    } catch (error) {
+      this.logger.error(
+        `Erreur suppression utilisateur: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        "Erreur lors de la suppression de l'utilisateur",
+      );
     }
   }
 
@@ -159,7 +203,7 @@ export class UserService {
 
       // Supprimer l'ancien avatar s'il existe
       if (user.avatar) {
-         deleteUploadedFile(user.avatar);
+        deleteUploadedFile(user.avatar);
       }
 
       // Mettre à jour avec le nouveau chemin
@@ -171,8 +215,13 @@ export class UserService {
       this.logger.log(`Avatar mis à jour pour utilisateur: ${userId}`);
       return this.sanitizeUser(updatedUser);
     } catch (error) {
-      this.logger.error(`Erreur mise à jour avatar: ${error.message}`, error.stack);
-      throw new BadRequestException('Erreur lors de la mise à jour de l\'avatar');
+      this.logger.error(
+        `Erreur mise à jour avatar: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        "Erreur lors de la mise à jour de l'avatar",
+      );
     }
   }
 
@@ -205,8 +254,13 @@ export class UserService {
       this.logger.log(`Avatar supprimé pour utilisateur: ${userId}`);
       return this.sanitizeUser(updatedUser);
     } catch (error) {
-      this.logger.error(`Erreur suppression avatar: ${error.message}`, error.stack);
-      throw new BadRequestException('Erreur lors de la suppression de l\'avatar');
+      this.logger.error(
+        `Erreur suppression avatar: ${error.message}`,
+        error.stack,
+      );
+      throw new BadRequestException(
+        "Erreur lors de la suppression de l'avatar",
+      );
     }
   }
 

@@ -34,7 +34,7 @@ export class ConversationController {
   async findByUser(@Req() req: any) {
     const userId = req.user?.id;
     if (!userId) throw new BadRequestException('Utilisateur non authentifié');
-    return this.conversationService.findByUserId(userId);
+    return this.conversationService.findByUserId(userId, req);
   }
 
   @Get('archived')

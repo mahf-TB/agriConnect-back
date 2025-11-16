@@ -19,6 +19,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { FileUploadInterceptor } from 'src/common/interceptors/file-upload.interceptor';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
 
 /**
  * Contrôleur pour la gestion des utilisateurs
@@ -50,6 +52,8 @@ export class UserController {
   /**
    * Récupère tous les utilisateurs
    */
+  @UseGuards(RolesGuard)
+  @Roles('admin' as any)
   @Get()
   async findAll(@Request() req: any) {
     this.logger.debug('Récupération tous les utilisateurs');
@@ -75,7 +79,11 @@ export class UserController {
    * Met à jour les infos d'un utilisateur
    */
   @Put(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateUserDto, @Request() req: any) {
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateUserDto,
+    @Request() req: any,
+  ) {
     const userId = req.user.id;
     this.logger.debug(`Mise à jour utilisateur: ${userId}`);
     return this.userService.update(userId, dto);
@@ -84,11 +92,28 @@ export class UserController {
   /**
    * Supprime un utilisateur
    */
+  @UseGuards(RolesGuard)
+  @Roles('admin' as any)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     this.logger.debug(`Suppression utilisateur: ${id}`);
     return this.userService.remove(id);
   }
+
+
+    /**
+   * Supprime un utilisateur
+   */
+  @UseGuards(RolesGuard)
+  @Roles('admin' as any)
+  @Delete(':id')
+  async suspendedUser(@Param('id') id: string) {
+    this.logger.debug(`Suppression utilisateur: ${id}`);
+    return this.userService.suspend(id);
+  }
+
+
+
 
   /**
    * Upload ou met à jour l'avatar d'un utilisateur

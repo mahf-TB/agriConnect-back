@@ -52,6 +52,54 @@ export class MessagingGateway extends BaseGateway {
     }
   }
 
+  @SubscribeMessage('conversation:join')
+  handleJoinConversation(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { conversationId: string; userId?: string },
+  ) {
+    try {
+      const room = payload.conversationId;
+      client.join(room);
+      const userId = payload.userId || client.id;
+      this.logger.debug(`➡️ Client ${userId} joined conversation ${room}`);
+
+      // Optionnel : prévenir les autres membres de la salle
+      this.wsConnection.sendToRoom(room, 'participantJoined', {
+        userId,
+        timestamp: Date.now(),
+      });
+
+      return { status: 'ok', message: `Joined ${room}` };
+    } catch (error) {
+      this.logger.error(`❌ Erreur handleJoinConversation: ${error.message}`, error.stack);
+      return { status: 'error', message: 'Could not join conversation' };
+    }
+  }
+
+  @SubscribeMessage('conversation:leave')
+  handleLeaveConversation(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() payload: { conversationId: string; userId?: string },
+  ) {
+    try {
+      const room = payload.conversationId;
+      client.leave(room);
+      const userId = payload.userId || client.id;
+      this.logger.debug(`⬅️ Client ${userId} left conversation ${room}`);
+
+      // Optionnel : prévenir les autres membres de la salle
+      this.wsConnection.sendToRoom(room, 'participantLeft', {
+        userId,
+        timestamp: Date.now(),
+      });
+
+      return { status: 'ok', message: `Left ${room}` };
+    } catch (error) {
+      this.logger.error(`❌ Erreur handleLeaveConversation: ${error.message}`, error.stack);
+      return { status: 'error', message: 'Could not leave conversation' };
+    }
+  }
+
   // ===========================================================
   // Event facultatif pour broadcast à une conversation (room)
   // ===========================================================

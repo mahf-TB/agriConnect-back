@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
+import { getFullUrl } from 'src/common/utils/file';
 
 @Injectable()
 export class ConversationService {
@@ -61,7 +62,10 @@ export class ConversationService {
         },
       });
 
+      
       return conversation;
+
+
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
@@ -108,7 +112,7 @@ export class ConversationService {
   /**
    * Récupérer toutes les conversations d'un utilisateur
    */
-  async findByUserId(userId: string) {
+  async findByUserId(userId: string , req?: any) {
     try {
       const conversations = await this.prisma.conversation.findMany({
         where: {
@@ -131,7 +135,34 @@ export class ConversationService {
         },
       });
 
-      return conversations;
+      // Supprimer le champ mot_de_passe des utilisateurs retournés
+      const sanitized = conversations.map((c) => {
+        const conv: any = { ...c };
+
+        if (conv.participant1 && 'mot_de_passe' in conv.participant1) {
+          const { mot_de_passe, avatar , ...rest } = conv.participant1;
+
+          conv.participant1 = {...rest, avatar: avatar ? getFullUrl(req, avatar) : null };
+        }
+
+        if (conv.participant2 && 'mot_de_passe' in conv.participant2) {
+          const { mot_de_passe, avatar, ...rest } = conv.participant2;
+          conv.participant2 = {...rest, avatar: avatar ? getFullUrl(req, avatar) : null };
+        }
+
+        if (
+          conv.dernierMessage &&
+          conv.dernierMessage.expediteur &&
+          'mot_de_passe' in conv.dernierMessage.expediteur
+        ) {
+          const { mot_de_passe, avatar, ...rest } = conv.dernierMessage.expediteur;
+          conv.dernierMessage.expediteur = {...rest, avatar: avatar ? getFullUrl(req, avatar) : null };
+        }
+
+        return conv;
+      });
+
+      return sanitized;
     } catch (error) {
       throw new BadRequestException(
         `Erreur lors de la récupération des conversations : ${error.message}`,
