@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 // import { NotificationGateway } from './notification.gateway';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { NotificationsGateway } from 'src/common/websockets/notifications/notifications.gateway';
+import { NotificationsGateway } from 'src/websockets/notifications/notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
