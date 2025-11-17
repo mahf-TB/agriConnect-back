@@ -111,6 +111,8 @@ export class CmdProduitsService {
             quantiteTotal: true,
             prixUnitaire: true,
             statut: true,
+            adresseLivraison: true,
+            dateLivraisonPrevue: true,
             messageCollecteur: true,
             createdAt: true,
             collecteur: {
