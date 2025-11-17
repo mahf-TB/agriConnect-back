@@ -73,4 +73,19 @@ export class CommandesController {
     const collecteurId = req.user.id;
     return this.cmdService.annulerCommande(collecteurId, commandeId, raison);
   }
+
+      // ==================================================
+  // Refuser une commande
+  // ==================================================
+  @Patch(':commandeId/refuser')
+  async refuserCommande(
+    @Param('commandeId') commandeId: string,
+     @Request() req,
+  ) {
+    const paysanId = req.user.id;
+    return this.cmdService.payerCommande(
+      paysanId,
+      commandeId
+    );
+  }
 }

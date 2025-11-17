@@ -371,8 +371,39 @@ export class CommandesService {
     return updatedCommande;
   }
 
+
+
+
+  async payerCommande(
+    collecteurId: string,
+    commandeId: string,
+  ) {
+    // 1️⃣ Vérifier que la commande existe et appartient bien au collecteur
+    const commande = await this.getCommandeForCollecteur(
+      collecteurId,
+      commandeId,
+    );
+
+    if (commande.statut === 'annulee') {
+      throw new BadRequestException('Commande déjà annulée');
+    }
+
+    // 2️⃣ Mettre à jour le statut global et les lignes dans une transaction
+    const updatedCommande = await this.prisma.$transaction(async (tx) => {
+      // Mettre à jour le statut global et le message du collecteur
+      return tx.commande.update({
+        where: { id: commandeId },
+        data: {
+          statut: 'payee',
+        },
+      });
+    });
+
+    return updatedCommande;
+  }
+
   // ============================================================================
-  // PRIVATE HELPER METHODS - Séparation des responsabilités
+  // PRIVATE HELPER METHODS - Séparation des responsabilités 
   // ============================================================================
 
   /**

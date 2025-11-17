@@ -159,6 +159,7 @@ enum CommandeStatut {
   partiellement_fournie
   complete
   acceptee
+  payee
   livree
   annulee
 }

@@ -69,4 +69,18 @@ export class CmdProduitsController {
       raison,
     );
   }
+
+  @Patch(':commandeId/livree')
+  async livrerCommande(
+    @Param('commandeId') commandeId: string,
+    @Body('raison') raison: string, // optionnel
+    @Req() req,
+  ) {
+    const paysanId = req.user.id;
+    return this.commandeProduitService.livreeCommande(
+      paysanId,
+      commandeId,
+      raison,
+    );
+  }
 }

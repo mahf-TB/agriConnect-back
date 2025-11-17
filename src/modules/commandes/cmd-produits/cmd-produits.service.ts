@@ -252,14 +252,33 @@ export class CmdProduitsService {
       commandeProduitId,
     );
 
-    if (ligne.statutLigne === 'acceptee') {
-      throw new BadRequestException('Cette ligne est déjà acceptée');
-    }
     if (ligne.statutLigne === 'rejetée') {
       throw new BadRequestException('Cette ligne a déjà été refusée');
     }
 
     return this.updateLigneStatut(ligne.id, 'rejetée', raison);
+  }
+  // ==================================================
+  // Refuser une commande
+  // ==================================================
+  async livreeCommande(
+    paysanId: string,
+    commandeProduitId: string,
+    raison?: string,
+  ) {
+    const ligne = await this.getCommandeProduitForPaysanCommande(
+      paysanId,
+      commandeProduitId,
+    );
+
+     if (ligne.statutLigne === 'livree') {
+      throw new BadRequestException('Cette ligne est déjà livrée');
+    }
+    if (ligne.statutLigne === 'rejetée') {
+      throw new BadRequestException('Cette ligne a déjà été refusée');
+    }
+
+    return this.updateLigneStatut(ligne.id, 'livree', raison);
   }
 
   // ==================================================
@@ -321,6 +340,7 @@ export class CmdProduitsService {
 
       const allAccepted = lignes.every((l) => l.statutLigne === 'acceptee' || l.statutLigne === 'partiellement_acceptee');
       const allRefused = lignes.every((l) => l.statutLigne === 'rejetée');
+      const allDelivred = lignes.every((l) => l.statutLigne === 'livree');
 
       // 3️⃣ Mettre à jour le statut global de la commande si nécessaire
       if (allAccepted) {
@@ -332,6 +352,11 @@ export class CmdProduitsService {
         await tx.commande.update({
           where: { id: updatedLigne.commandeId },
           data: { statut: 'annulee' },
+        });
+      }else if( allDelivred) {
+        await tx.commande.update({
+          where: { id: updatedLigne.commandeId },
+          data: { statut: 'livree' },
         });
       }
 
