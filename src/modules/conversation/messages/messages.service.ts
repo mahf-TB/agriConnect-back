@@ -2,10 +2,13 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { PrismaService } from 'src/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
+import { MessagingGateway } from 'src/websockets/messaging/messaging.gateway';
 
 @Injectable()
 export class MessagesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, 
+    private readonly gateway: MessagingGateway,
+  ) {}
 
   /**
    * Créer un nouveau message
@@ -36,9 +39,11 @@ export class MessagesService {
         include: {
           expediteur: true,
           destinataire: true,
-          conversation: true,
+          // conversation: true,
         },
       });
+
+      this.gateway.sendMessageToUser(message.conversationId, message);
 
       return message;
     } catch (error) {

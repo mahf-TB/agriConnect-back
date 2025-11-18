@@ -25,7 +25,7 @@ import { deleteUploadedFile } from 'src/common/utils/file';
 @UseGuards(JwtAuthGuard)
 @Controller('produits')
 export class ProduitsController {
-  constructor(private readonly produitService: ProduitsService) {}
+  constructor(private readonly produitService: ProduitsService) { }
 
   @Post()
   @UseInterceptors(FileUploadInterceptor('image', 'produits'))
@@ -67,7 +67,28 @@ export class ProduitsController {
   getAllProduitPaysan(@Req() req: any, @Query() query: any) {
     const { page = 1, limit = 2, type, statut, search } = query;
     const paysanId = req.user.id;
-    
+
+    return this.produitService.findAllProduitDuPaysan(
+      req,
+      {
+        type,
+        paysanId,
+        statut,
+        search,
+      },
+      Number(page),
+      Number(limit),
+    );
+  }
+
+  @Get('paysan/:id')
+  getAllProduitForPaysan(
+    @Param('id') paysanId: string,
+    @Query() query: any,
+    @Req() req: any,
+  ) {
+    const { page = 1, limit = 2, type, statut, search } = query;
+
     return this.produitService.findAllProduitDuPaysan(
       req,
       {
@@ -82,7 +103,7 @@ export class ProduitsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string, @Req() req) {
+  findOne(@Param('id') id: string, @Req() req: any) {
     return this.produitService.findOne(id, req);
   }
 
@@ -139,5 +160,17 @@ export class ProduitsController {
         'Échec de la suppression du produit. Veuillez réessayer.',
       );
     }
+  }
+
+
+  @Get('stats/paysan')
+  async getMyProductsStats(@Req() req) {
+    return this.produitService.getProductsStats(req.user.id);
+  }
+
+
+  @Get('stats/user/:userId')
+  async getProductsStatsByUserId(@Param('userId') userId: string) {
+    return this.produitService.getProductsStatsByUserId(userId);
   }
 }

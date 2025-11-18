@@ -78,7 +78,6 @@ export class WebsocketConnectionService {
     for (const userId of userIds) {
       const sockets = this.userToSockets.get(userId);
       if (!sockets) continue;
-
       sockets.forEach((sid) => this.io!.to(sid).emit(event, payload));
     }
   }

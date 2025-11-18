@@ -20,7 +20,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 @UseGuards(JwtAuthGuard)
 @Controller('commandes')
 export class CommandesController {
-  constructor(private readonly cmdService: CommandesService) {}
+  constructor(private readonly cmdService: CommandesService) { }
 
   @Post()
   createCommande(@Body() dto: CreateOrderDto, @Request() req: any) {
@@ -80,7 +80,7 @@ export class CommandesController {
   @Patch(':commandeId/payer')
   async payerCommande(
     @Param('commandeId') commandeId: string,
-     @Request() req,
+    @Request() req,
   ) {
     const paysanId = req.user.id;
     return this.cmdService.payerCommande(
@@ -88,4 +88,21 @@ export class CommandesController {
       commandeId
     );
   }
+
+ // ==================================================
+  // Stats du paysan
+  // ==================================================
+  @Get('stats/paysan')
+  getOrdersStatsPaysan(@Request() req) {
+    return this.cmdService.getOrdersStatsPaysan(req.user.id);
+  }
+
+  // ==================================================
+  // Stats du collecteur
+  // ==================================================
+  @Get('stats/collecteur')
+  getOrdersStatsCollecteur(@Request() req) {
+    return this.cmdService.getOrdersStatsCollecteur(req.user.id);
+  }
+
 }

@@ -17,7 +17,7 @@ import { paginate, PaginatedResult } from 'src/common/utils/pagination';
 
 @Injectable()
 export class ProduitsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(
     data: CreateProduitDto & { paysanId: string; imageUrl?: string },
@@ -68,7 +68,7 @@ export class ProduitsService {
     return paginate(cleaned, total, { page, limit });
   }
 
-   async findAllProduitDuPaysan(
+  async findAllProduitDuPaysan(
     req: Request,
     params?: {
       type?: ProduitType;
@@ -95,7 +95,7 @@ export class ProduitsService {
       ];
     }
     console.log(params?.paysanId);
-    
+
     // ⚙️ Requête paginée
     const [produits, total] = await Promise.all([
       this.prisma.produit.findMany({
@@ -164,6 +164,61 @@ export class ProduitsService {
     if (data.prixUnitaire <= 0) {
       throw new BadRequestException('Le prix unitaire doit être supérieur à 0');
     }
+  }
+
+  // Statistiques des produits pour le paysan connecté
+  async getProductsStats(paysanId: string) {
+    const [total, disponibles, rupture, archives] = await Promise.all([
+      this.prisma.produit.count({ where: { paysanId } }),
+
+      this.prisma.produit.count({
+        where: { paysanId, statut: "disponible" }
+      }),
+
+      this.prisma.produit.count({
+        where: { paysanId, statut: "rupture" }
+      }),
+
+      this.prisma.produit.count({
+        where: { paysanId, statut: "archive" }
+      }),
+    ]);
+
+    return {
+      totalProduits: total,
+      produitsDisponibles: disponibles,
+      produitsRupture: rupture,
+      produitsArchives: archives,
+    };
+  }
+
+
+  // Statistiques des produits pour un utilisateur spécifique (profil visité)
+  async getProductsStatsByUserId(userId: string) {
+    const [total, disponibles, rupture, archives] = await Promise.all([
+      this.prisma.produit.count({ where: { paysanId: userId } }),
+      // Disponible
+      this.prisma.produit.count({
+        where: { paysanId: userId, statut: "disponible" }
+      }),
+
+      // Rupture
+      this.prisma.produit.count({
+        where: { paysanId: userId, statut: "rupture" }
+      }),
+
+      // Archive
+      this.prisma.produit.count({
+        where: { paysanId: userId, statut: "archive" }
+      }),
+    ]);
+
+    return {
+      totalProduits: total,
+      produitsDisponibles: disponibles,
+      produitsRupture: rupture,
+      produitsArchives: archives,
+    };
   }
 
   //   async search(term: string) {

@@ -7,14 +7,9 @@ import {
 import { Socket } from 'socket.io';
 import { BaseGateway } from '../base/base.gateway';
 import { WebsocketConnectionService } from '../websocket-connection.service';
+import { Message } from 'generated/client';
 
-interface MessagePayload {
-  senderId: string;
-  receiverId: string;
-  content: string;
-  conversationId?: string; // optionnel, si tu gères les conversations
-  metadata?: any;
-}
+
 
 @Injectable()
 export class MessagingGateway extends BaseGateway {
@@ -22,41 +17,19 @@ export class MessagingGateway extends BaseGateway {
     super(wsConnection);
   }
 
+  /**
+   * Envoyer une notification (API interne pour d’autres modules)
+   */
+  sendMessageToUser(conversationId: string, payload: Message) {
+    this.wsConnection.sendToRoom(conversationId, 'message:created', {
+      ...payload,
+      timestamp: Date.now(),
+    });
+  }
+
   // ===========================================================
   // Événement reçu du front : envoi de message
   // ===========================================================
-  @SubscribeMessage('sendMessage')
-  handleSendMessage(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() payload: MessagePayload,
-  ) {
-    try {
-      this.logger.debug(
-        `📨 Message reçu de ${payload.senderId} → ${payload.receiverId}: "${payload.content}"`,
-      );
-
-      // TODO: Optionnel : sauvegarder le message en DB ici
-      // await this.messageService.create(payload);
-
-      // Envoyer le message au destinataire
-      this.wsConnection.sendToUser(payload.receiverId, 'message:created', {
-        from: payload.senderId,
-        content: payload.content,
-        conversationId: payload.conversationId || null,
-        metadata: payload.metadata || null,
-        timestamp: Date.now(),
-      });
-
-      // Retour au front (ACK)
-      return { status: 'ok', message: 'Message delivered' };
-    } catch (error) {
-      this.logger.error(
-        `❌ Erreur handleSendMessage: ${error.message}`,
-        error.stack,
-      );
-      return { status: 'error', message: 'Message not delivered' };
-    }
-  }
 
   @SubscribeMessage('conversation:join')
   handleJoinConversation(
@@ -70,10 +43,10 @@ export class MessagingGateway extends BaseGateway {
       this.logger.debug(`➡️ Client ${userId} joined conversation ${room}`);
 
       // Optionnel : prévenir les autres membres de la salle
-      this.wsConnection.sendToRoom(room, 'participantJoined', {
-        userId,
-        timestamp: Date.now(),
-      });
+      // this.wsConnection.sendToRoom(room, 'participantJoined', {
+      //   userId,
+      //   timestamp: Date.now(),
+      // });
 
       return { status: 'ok', message: `Joined ${room}` };
     } catch (error) {
@@ -97,10 +70,10 @@ export class MessagingGateway extends BaseGateway {
       this.logger.debug(`⬅️ Client ${userId} left conversation ${room}`);
 
       // Optionnel : prévenir les autres membres de la salle
-      this.wsConnection.sendToRoom(room, 'participantLeft', {
-        userId,
-        timestamp: Date.now(),
-      });
+      // this.wsConnection.sendToRoom(room, 'participantLeft', {
+      //   userId,
+      //   timestamp: Date.now(),
+      // });
 
       return { status: 'ok', message: `Left ${room}` };
     } catch (error) {
