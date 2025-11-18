@@ -75,10 +75,10 @@ export class CommandesController {
   }
 
       // ==================================================
-  // Refuser une commande
+  // Payer une commande
   // ==================================================
-  @Patch(':commandeId/refuser')
-  async refuserCommande(
+  @Patch(':commandeId/payer')
+  async payerCommande(
     @Param('commandeId') commandeId: string,
      @Request() req,
   ) {
