@@ -12,10 +12,7 @@ import { calculerDistanceKm } from 'src/common/utils/geo.utils';
 import { FilterCommandeDto } from './dto/filter-commande.dto';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from 'generated/enums';
-import {
-  mapCommandesToClean,
-  mapCommandeToClean,
-} from 'src/common/mappers/commande.mapper';
+import { mapCommandesToClean } from 'src/common/mappers/commande.mapper';
 import { paginate, PaginatedResult } from 'src/common/utils/pagination';
 import { CleanCommande } from 'src/common/types/commande.types';
 
@@ -113,14 +110,14 @@ export class CommandesService {
       const notificationData = {
         type: NotificationType.commande,
         titre: 'Nouvelle commande reçue',
-        message: `Une commande #${result?.commande?.id} a été enregistrée`,
-        lien: '/commandes/123',
+        message: `Une commande de ${result?.produitRecherche} a été enregistrée`,
+        lien: `/orders/${result?.id}`,
         reference_id: 'cmhumzo8r0001q7bwf9dxz7hj',
         reference_type: 'commande',
-        userIds: [existingProduit.paysan.id],
+        userId: existingProduit.paysan.id,
       };
       // this.gateway.sendNotificationToUsers(dto.userIds, notifData);
-      await this.notifyService.envoieNotifyUsers(notificationData);
+      await this.notifyService.envoieNotifyOneUser(notificationData);
       this.logger.log(`Commande créée avec succès: ${result.id}`);
       return result;
     } catch (error) {
@@ -348,8 +345,17 @@ export class CommandesService {
       throw new BadRequestException('Commande déjà annulée');
     }
 
+    // let cmdProduit = null
     // 2️⃣ Mettre à jour le statut global et les lignes dans une transaction
     const updatedCommande = await this.prisma.$transaction(async (tx) => {
+      // 🔍 Charger toutes les lignes, car on en aura besoin
+      const lignes = await tx.commandeProduit.findMany({
+        where: { commandeId },
+        include: {
+          produit: true, // pour accéder au stock actuel
+        },
+      });
+
       // Mettre à jour toutes les lignes associées
       await tx.commandeProduit.updateMany({
         where: { commandeId },
@@ -358,6 +364,18 @@ export class CommandesService {
         },
       });
 
+      // 2.2 ➕ Restituer les quantités aux produits
+      for (const ligne of lignes) {
+        await tx.produit.update({
+          where: { id: ligne.produitId },
+          data: {
+            quantiteDisponible: {
+              increment: ligne.quantiteAccordee, // quantité retournée
+            },
+          },
+        });
+      }
+
       // Mettre à jour le statut global et le message du collecteur
       return tx.commande.update({
         where: { id: commandeId },
@@ -365,19 +383,30 @@ export class CommandesService {
           statut: 'annulee',
           messageCollecteur: raison || 'Commande annulée par le collecteur',
         },
+        include: {
+          lignes: true,
+          collecteur: true,
+        },
       });
+    });
+
+    const paysansIds = [
+      ...new Set(updatedCommande.lignes.map((l) => l.paysanId)),
+    ];
+    await this.notifyService.envoieNotifyUsers({
+      type: NotificationType.commande,
+      titre: `Commande annulée par ${updatedCommande.collecteur.nom}`,
+      message: `La commande de ${updatedCommande.produitRecherche} a été annulée`,
+      lien: `/orders/${updatedCommande.id}`,
+      reference_id: updatedCommande.collecteur.avatar,
+      reference_type: 'commande',
+      userIds: paysansIds,
     });
 
     return updatedCommande;
   }
 
-
-
-
-  async payerCommande(
-    collecteurId: string,
-    commandeId: string,
-  ) {
+  async payerCommande(collecteurId: string, commandeId: string) {
     // 1️⃣ Vérifier que la commande existe et appartient bien au collecteur
     const commande = await this.getCommandeForCollecteur(
       collecteurId,
@@ -396,14 +425,31 @@ export class CommandesService {
         data: {
           statut: 'payee',
         },
+        include: {
+          lignes: true,
+          collecteur: true,
+        },
       });
+    });
+
+    const paysansIds = [
+      ...new Set(updatedCommande.lignes.map((l) => l.paysanId)),
+    ];
+    await this.notifyService.envoieNotifyUsers({
+      type: NotificationType.commande,
+      titre: `Commande payée par ${updatedCommande.collecteur.nom}`,
+      message: `La commande #${updatedCommande.produitRecherche} a été payée`,
+      lien: `/orders/${updatedCommande.id}`,
+      reference_id: updatedCommande.collecteur.avatar,
+      reference_type: 'commande',
+      userIds: paysansIds,
     });
 
     return updatedCommande;
   }
 
   // ============================================================================
-  // PRIVATE HELPER METHODS - Séparation des responsabilités 
+  // PRIVATE HELPER METHODS - Séparation des responsabilités
   // ============================================================================
 
   /**
@@ -446,7 +492,7 @@ export class CommandesService {
       type: NotificationType.commande,
       titre: 'Nouvelle demande de produit',
       message: `Une nouvelle demande de ${productName} a été créée près de chez vous.`,
-      lien: `/demandes/${commande.id}`,
+      lien: `/orders/${commande.id}`,
       reference_id: commande.id,
       reference_type: 'commande',
       userIds: uniqueFarmerIds,
@@ -466,6 +512,13 @@ export class CommandesService {
     dto: CreateOrderDto & { collecteurId: string },
     existingProduit: any,
   ) {
+    // 2️⃣ Déterminer le statut de la ligne
+    const statutLigne = this.determineLineStatus(
+      dto.quantiteAccordee,
+      dto.prixUnitaire,
+      existingProduit,
+    );
+
     // 1️⃣ Création de la commande
     const commande = await tx.commande.create({
       data: {
@@ -474,18 +527,11 @@ export class CommandesService {
         dateLivraisonPrevue: dto.dateLivraisonPrevue,
         messageCollecteur: dto.messageCollecteur,
         collecteurId: dto.collecteurId,
-        statut: 'en_attente',
+        statut: statutLigne === 'acceptee' ? 'acceptee' : 'en_attente',
         quantiteTotal: dto.quantiteAccordee,
         prixUnitaire: dto.prixUnitaire ?? existingProduit.prixUnitaire,
       },
     });
-
-    // 2️⃣ Déterminer le statut de la ligne
-    const statutLigne = this.determineLineStatus(
-      dto.quantiteAccordee,
-      dto.prixUnitaire,
-      existingProduit,
-    );
 
     // 3️⃣ Création du lien CommandeProduit
     const commandeProduit = await tx.commandeProduit.create({

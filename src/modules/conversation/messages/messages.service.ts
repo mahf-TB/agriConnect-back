@@ -1,4 +1,8 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { CreateMessageDto } from './dto/create-message.dto';
 import { UpdateMessageDto } from './dto/update-message.dto';
@@ -6,7 +10,8 @@ import { MessagingGateway } from 'src/websockets/messaging/messaging.gateway';
 
 @Injectable()
 export class MessagesService {
-  constructor(private readonly prisma: PrismaService, 
+  constructor(
+    private readonly prisma: PrismaService,
     private readonly gateway: MessagingGateway,
   ) {}
 
@@ -22,9 +27,7 @@ export class MessagesService {
       ]);
 
       if (!expediteur || !destinataire) {
-        throw new BadRequestException(
-          'Expéditeur ou destinataire non trouvé',
-        );
+        throw new BadRequestException('Expéditeur ou destinataire non trouvé');
       }
 
       const message = await this.prisma.message.create({
@@ -39,7 +42,7 @@ export class MessagesService {
         include: {
           expediteur: true,
           destinataire: true,
-          // conversation: true,
+          conversation: true,
         },
       });
 
@@ -148,13 +151,15 @@ export class MessagesService {
   async update(id: string, dto: UpdateMessageDto) {
     try {
       const message = await this.findOne(id);
-
+      
       const updatedMessage = await this.prisma.message.update({
         where: { id },
         data: {
           contenu: dto.contenu !== undefined ? dto.contenu : message.contenu,
           typeContenu:
-            dto.typeContenu !== undefined ? dto.typeContenu : message.typeContenu,
+            dto.typeContenu !== undefined
+              ? dto.typeContenu
+              : message.typeContenu,
           fichierUrl:
             dto.fichierUrl !== undefined ? dto.fichierUrl : message.fichierUrl,
           lu: dto.lu !== undefined ? dto.lu : message.lu,
@@ -165,6 +170,11 @@ export class MessagesService {
           conversation: true,
         },
       });
+
+      this.gateway.sendMessageUpdateToUser(
+        message.conversationId,
+        updatedMessage,
+      );
 
       return updatedMessage;
     } catch (error) {
@@ -194,14 +204,12 @@ export class MessagesService {
     }
   }
 
-
   /**
    * Supprimer un message
    */
   async delete(id: string) {
     try {
       const message = await this.findOne(id);
-
       await this.prisma.message.delete({
         where: { id },
       });

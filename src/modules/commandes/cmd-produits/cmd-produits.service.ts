@@ -187,18 +187,22 @@ export class CmdProduitsService {
           data: { statut: nouveauStatut },
         });
 
+        await tx.produit.update({
+          where: { id: dto.produitId },
+          data: { quantiteDisponible: { decrement: dto.quantite } },
+        });
+
         // Notifier le collecteur
         try {
-          const notificationData = {
+          await this.notifyService.envoieNotifyOneUser({
             type: NotificationType.commande,
             titre: 'Proposition reçue',
             message: `Un paysan a proposé ${dto.quantite} ${commande.unite} pour votre demande de ${commande.produitRecherche}`,
-            lien: `/commandes/${commande.id}`,
-            reference_id: commande.id,
+            lien: `/orders/${commande.id}`,
+            reference_id: proposition.produit.imageUrl,
             reference_type: 'commande',
             userId: commande.collecteurId,
-          };
-          await this.notifyService.envoieNotifyOneUser(notificationData);
+          });
         } catch (notifyErr) {
           this.logger.warn(
             `Impossible d'envoyer notification au collecteur: ${notifyErr.message}`,
@@ -271,7 +275,7 @@ export class CmdProduitsService {
       commandeProduitId,
     );
 
-     if (ligne.statutLigne === 'livree') {
+    if (ligne.statutLigne === 'livree') {
       throw new BadRequestException('Cette ligne est déjà livrée');
     }
     if (ligne.statutLigne === 'rejetée') {
@@ -338,7 +342,11 @@ export class CmdProduitsService {
         where: { commandeId: updatedLigne.commandeId },
       });
 
-      const allAccepted = lignes.every((l) => l.statutLigne === 'acceptee' || l.statutLigne === 'partiellement_acceptee');
+      const allAccepted = lignes.every(
+        (l) =>
+          l.statutLigne === 'acceptee' ||
+          l.statutLigne === 'partiellement_acceptee',
+      );
       const allRefused = lignes.every((l) => l.statutLigne === 'rejetée');
       const allDelivred = lignes.every((l) => l.statutLigne === 'livree');
 
@@ -353,7 +361,7 @@ export class CmdProduitsService {
           where: { id: updatedLigne.commandeId },
           data: { statut: 'annulee' },
         });
-      }else if( allDelivred) {
+      } else if (allDelivred) {
         await tx.commande.update({
           where: { id: updatedLigne.commandeId },
           data: { statut: 'livree' },

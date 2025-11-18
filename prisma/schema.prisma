@@ -17,31 +17,31 @@ datasource db {
 }
 
 model User {
-  id                  String              @id @default(cuid())
-  nom                 String
-  prenom              String
-  email               String              @unique
-  telephone           String
-  mot_de_passe        String
-  role                Role
-  avatar              String?             @db.VarChar(255)
-  adresse             String?             @db.Text
-  localisation        String?             @db.VarChar(100)
-  latitude            Float?
-  longitude           Float?
-  statut              Statut              @default(actif)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  id                                                               String              @id @default(cuid())
+  nom                                                              String
+  prenom                                                           String
+  email                                                            String              @unique
+  telephone                                                        String
+  mot_de_passe                                                     String
+  role                                                             Role
+  avatar                                                           String?             @db.VarChar(255)
+  adresse                                                          String?             @db.Text
+  localisation                                                     String?             @db.VarChar(100)
+  latitude                                                         Float?
+  Float?
+  statut      longitude        Statut              @default(actif)
+  createdAt                                                        DateTime            @default(now())
+  updatedAt                                                        DateTime            @updatedAt
 
-  produits            Produit[]
-  commandesFournies   CommandeProduit[]
-  commandesCollecteur Commande[]
-  notifications       UserNotification[]
+  produits                                                         Produit[]
+  commandesFournies                                                CommandeProduit[]
+  commandesCollecteur                                              Commande[]
+  notifications                                                    UserNotification[]
 
-  messagesEnvoyes     Message[]          @relation("Expediteur")
-  messagesRecus       Message[]          @relation("Destinataire")
-  conversationsP1     Conversation[]     @relation("Participant1")
-  conversationsP2     Conversation[]     @relation("Participant2")
+  messagesEnvoyes                                                  Message[]          @relation("Expediteur")
+  messagesRecus                                                    Message[]          @relation("Destinataire")
+  conversationsP1                                                  Conversation[]     @relation("Participant1")
+  conversationsP2                                                  Conversation[]     @relation("Participant2")
 
   @@index([role])
   @@index([localisation])
@@ -199,7 +199,7 @@ model Notification {
   id                   String              @id @default(cuid())
   type                 NotificationType
   titre                String
-  message              String
+  message              String              @db.Text
   lien                 String?
   reference_id         String?
   reference_type       String?
@@ -268,7 +268,7 @@ model Message {
   id             String         @id @default(cuid())
   expediteurId   String
   destinataireId String
-  contenu        String?
+  contenu        String?        @db.Text
   typeContenu    MessageType    @default(texte)
   fichierUrl     String?
   lu             Boolean        @default(false)
@@ -282,7 +282,7 @@ model Message {
   conversationId String?
   conversation   Conversation? @relation("MessagesConversation", fields: [conversationId], references: [id], onDelete: Cascade)
 
-  dernierDe      Conversation? @relation("DernierMessage") 
+  dernierDe      Conversation? @relation("DernierMessage")
   // inverse de dernierMessage
 
   @@index([expediteurId, destinataireId])

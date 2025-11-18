@@ -8,10 +8,14 @@ import { PrismaService } from 'src/prisma.service';
 import { CreateConversationDto } from './dto/create-conversation.dto';
 import { UpdateConversationDto } from './dto/update-conversation.dto';
 import { getFullUrl } from 'src/common/utils/file';
+import { MessagingGateway } from 'src/websockets/messaging/messaging.gateway';
 
 @Injectable()
 export class ConversationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly gateway: MessagingGateway,
+  ) {}
 
   /**
    * Créer une nouvelle conversation entre deux utilisateurs
@@ -178,14 +182,11 @@ export class ConversationService {
     }
   }
 
-
-
-
   /**
    * Marquer toute une conversation comme lue
    */
 
-  async markConversationAsRead(conversationId: string, userId: string) {
+  async markConversationAsRead(conversationId: string, readerId: string) {
     return await this.prisma.$transaction(async (tx) => {
       // 1️⃣ Récupérer la conversation
       const conversation = await tx.conversation.findUnique({
@@ -200,9 +201,9 @@ export class ConversationService {
       let isP1 = false;
       let isP2 = false;
 
-      if (conversation.participant1Id === userId) {
+      if (conversation.participant1Id === readerId) {
         isP1 = true;
-      } else if (conversation.participant2Id === userId) {
+      } else if (conversation.participant2Id === readerId) {
         isP2 = true;
       } else {
         throw new ForbiddenException(
@@ -216,7 +217,7 @@ export class ConversationService {
       const updateMessages = await tx.message.updateMany({
         where: {
           conversationId,
-          destinataireId: userId,
+          destinataireId: readerId,
           lu: false,
         },
         data: {
@@ -226,7 +227,7 @@ export class ConversationService {
       });
 
       // 4️⃣ Remettre à zéro les compteurs
-      await tx.conversation.update({
+       await tx.conversation.update({
         where: { id: conversationId },
         data: {
           messagesNonLusP1: isP1 ? 0 : undefined,
@@ -235,15 +236,13 @@ export class ConversationService {
         },
       });
 
-      // 5️⃣ (Optionnel) — Notifier en temps réel
-      // this.gateway.server
-      //   .to(conversationId)
-      //   .emit("conversation_read", {
-      //     conversationId,
-      //     userId,
-      //     readAt: now,
-      //     updatedMessages: updateMessages.count,
-      //   });
+
+      this.gateway.sendMessageReadToUser(conversationId, {
+          conversationId,
+          readerId,
+          readAt: now,
+          updatedMessages: updateMessages.count,
+        });
 
       return {
         conversationId,
@@ -252,8 +251,6 @@ export class ConversationService {
       };
     });
   }
-
-  
 
   /**
    * Récupérer les conversations archivées d'un utilisateur
@@ -539,5 +536,4 @@ export class ConversationService {
       );
     }
   }
-
 }
