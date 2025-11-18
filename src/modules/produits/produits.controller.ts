@@ -25,7 +25,7 @@ import { deleteUploadedFile } from 'src/common/utils/file';
 @UseGuards(JwtAuthGuard)
 @Controller('produits')
 export class ProduitsController {
-  constructor(private readonly produitService: ProduitsService) {}
+  constructor(private readonly produitService: ProduitsService) { }
 
   @Post()
   @UseInterceptors(FileUploadInterceptor('image', 'produits'))
@@ -160,5 +160,17 @@ export class ProduitsController {
         'Échec de la suppression du produit. Veuillez réessayer.',
       );
     }
+  }
+
+
+  @Get('stats/paysan')
+  async getMyProductsStats(@Req() req) {
+    return this.produitService.getProductsStats(req.user.id);
+  }
+
+
+  @Get('stats/user/:userId')
+  async getProductsStatsByUserId(@Param('userId') userId: string) {
+    return this.produitService.getProductsStatsByUserId(userId);
   }
 }
