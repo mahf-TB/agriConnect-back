@@ -221,6 +221,31 @@ export class ProduitsService {
     };
   }
 
+  async getProductsStatsGlobal() {
+    const [total, disponibles, rupture, archives] = await Promise.all([
+      this.prisma.produit.count({}),
+
+      this.prisma.produit.count({
+        where: { statut: "disponible" }
+      }),
+
+      this.prisma.produit.count({
+        where: { statut: "rupture" }
+      }),
+
+      this.prisma.produit.count({
+        where: { statut: "archive" }
+      }),
+    ]);
+
+    return {
+      totalProduits: total,
+      produitsDisponibles: disponibles,
+      produitsRupture: rupture,
+      produitsArchives: archives,
+    };
+  }
+
   //   async search(term: string) {
   //     return this.prisma.produit.findMany({
   //       where: {

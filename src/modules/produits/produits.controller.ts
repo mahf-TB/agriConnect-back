@@ -173,4 +173,9 @@ export class ProduitsController {
   async getProductsStatsByUserId(@Param('userId') userId: string) {
     return this.produitService.getProductsStatsByUserId(userId);
   }
+
+  @Get('stats/global')
+  async getGlobalProductsStats() {
+    return this.produitService.getProductsStatsGlobal();
+  }
 }
