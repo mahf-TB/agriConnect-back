@@ -17,31 +17,31 @@ datasource db {
 }
 
 model User {
-  id                                                               String              @id @default(cuid())
-  nom                                                              String
-  prenom                                                           String
-  email                                                            String              @unique
-  telephone                                                        String
-  mot_de_passe                                                     String
-  role                                                             Role
-  avatar                                                           String?             @db.VarChar(255)
-  adresse                                                          String?             @db.Text
-  localisation                                                     String?             @db.VarChar(100)
-  latitude                                                         Float?
-  Float?
-  statut      longitude        Statut              @default(actif)
-  createdAt                                                        DateTime            @default(now())
-  updatedAt                                                        DateTime            @updatedAt
+  id                  String              @id @default(cuid())
+  nom                 String
+  prenom              String
+  email               String              @unique
+  telephone           String
+  mot_de_passe        String
+  role                Role
+  avatar              String?             @db.VarChar(255)
+  adresse             String?             @db.Text
+  statut              Statut              @default(actif)
+  localisation        String?             @db.VarChar(100)
+  latitude            Float?
+  longitude           Float?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
 
-  produits                                                         Produit[]
-  commandesFournies                                                CommandeProduit[]
-  commandesCollecteur                                              Commande[]
-  notifications                                                    UserNotification[]
+  produits            Produit[]
+  commandesFournies   CommandeProduit[]
+  commandesCollecteur Commande[]
+  notifications       UserNotification[]
 
-  messagesEnvoyes                                                  Message[]          @relation("Expediteur")
-  messagesRecus                                                    Message[]          @relation("Destinataire")
-  conversationsP1                                                  Conversation[]     @relation("Participant1")
-  conversationsP2                                                  Conversation[]     @relation("Participant2")
+  messagesEnvoyes     Message[]          @relation("Expediteur")
+  messagesRecus       Message[]          @relation("Destinataire")
+  conversationsP1     Conversation[]     @relation("Participant1")
+  conversationsP2     Conversation[]     @relation("Participant2")
 
   @@index([role])
   @@index([localisation])

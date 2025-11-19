@@ -24,53 +24,7 @@ export class CmdProduitsService {
     private readonly notifyService: NotificationsService,
   ) {}
 
-  async getCommandesRecividedByPaysan(paysanId: string) {
-    // Vérifier si le paysan existe
-    const paysanExists = await this.prisma.user.findUnique({
-      where: { id: paysanId },
-      select: { id: true },
-    });
-    if (!paysanExists) {
-      throw new NotFoundException(`Paysan avec l'id ${paysanId} introuvable`);
-    }
-    // Récupérer toutes les lignes de commande liées à ce paysan
-    const commandes = await this.prisma.commandeProduit.findMany({
-      where: {
-        paysanId,
-      },
-      include: {
-        produit: true,
-        commande: {
-          select: {
-            id: true,
-            produitRecherche: true,
-            territoire: true,
-            quantiteTotal: true,
-            prixUnitaire: true,
-            statut: true,
-            adresseLivraison: true,
-            dateLivraisonPrevue: true,
-            messageCollecteur: true,
-            createdAt: true,
-            collecteur: {
-              select: {
-                id: true,
-                nom: true,
-                prenom: true,
-                telephone: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
-
-    return commandes;
-  }
-
+ 
   async getCommandesReciviedByPaysan(
     paysanId: string,
     options: PaginationOptions,
@@ -107,7 +61,7 @@ export class CmdProduitsService {
           select: {
             id: true,
             produitRecherche: true,
-            territoire: true,
+            territoire: false,
             quantiteTotal: true,
             prixUnitaire: true,
             statut: true,
@@ -248,12 +202,12 @@ export class CmdProduitsService {
   // ==================================================
   async refuserCommande(
     paysanId: string,
-    commandeProduitId: string,
+    commandeId: string,
     raison?: string,
   ) {
     const ligne = await this.getCommandeProduitForPaysanCommande(
       paysanId,
-      commandeProduitId,
+      commandeId,
     );
 
     if (ligne.statutLigne === 'rejetée') {

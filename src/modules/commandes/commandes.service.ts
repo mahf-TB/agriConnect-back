@@ -157,7 +157,7 @@ export class CommandesService {
         filters,
       );
 
-      // Récupération parallèle des données et du total
+      // Récupération parallè le des données et du total
       const [commandes, total] = await Promise.all([
         this.prisma.commande.findMany({
           where: whereCondition,
@@ -448,6 +448,110 @@ export class CommandesService {
     return updatedCommande;
   }
 
+
+
+
+  // Statistiques des commandes pour un paysan
+  async getOrdersStatsPaysan(paysanId: string) {
+    const [
+      total,
+      ouvertes,
+      partiellementFournies,
+      completees,
+      acceptees,
+      payees,
+      livrees,
+      annulees,
+    ] = await Promise.all([
+      this.prisma.commande.count({
+        where: { lignes: { some: { produit: { paysanId } } } }
+      }),
+
+      this.prisma.commande.count({
+        where: { statut: "ouverte", lignes: { some: { produit: { paysanId } } } }
+      }),
+
+      this.prisma.commande.count({
+        where: { statut: "partiellement_fournie", lignes: { some: { produit: { paysanId } } } }
+      }),
+
+      this.prisma.commande.count({
+        where: { statut: "complete", lignes: { some: { produit: { paysanId } } } }
+      }),
+
+      this.prisma.commande.count({
+        where: { statut: "acceptee", lignes: { some: { produit: { paysanId } } } }
+      }),
+
+      this.prisma.commande.count({
+        where: { statut: "payee", lignes: { some: { produit: { paysanId } } } }
+      }),
+
+      this.prisma.commande.count({
+        where: { statut: "livree", lignes: { some: { produit: { paysanId } } } }
+      }),
+
+      this.prisma.commande.count({
+        where: { statut: "annulee", lignes: { some: { produit: { paysanId } } } }
+      }),
+    ]);
+
+    return {
+      totalCommandes: total,
+      commandesOuvertes: ouvertes,
+      commandesPartiellementFournies: partiellementFournies,
+      commandesCompletees: completees,
+      commandesAcceptees: acceptees,
+      commandesPayees: payees,
+      commandesLivrees: livrees,
+      commandesAnnulees: annulees,
+    };
+  }
+
+
+  // Statistiques des commandes pour un collecteur
+  async getOrdersStatsCollecteur(collecteurId: string) {
+    const [
+      total,
+      ouvertes,
+      partiellementFournies,
+      completees,
+      acceptees,
+      payees,
+      livrees,
+      annulees,
+    ] = await Promise.all([
+      this.prisma.commande.count({ where: { collecteurId } }),
+
+      this.prisma.commande.count({ where: { collecteurId, statut: "ouverte" } }),
+
+      this.prisma.commande.count({ where: { collecteurId, statut: "partiellement_fournie" } }),
+
+      this.prisma.commande.count({ where: { collecteurId, statut: "complete" } }),
+
+      this.prisma.commande.count({ where: { collecteurId, statut: "acceptee" } }),
+
+      this.prisma.commande.count({ where: { collecteurId, statut: "payee" } }),
+
+      this.prisma.commande.count({ where: { collecteurId, statut: "livree" } }),
+
+      this.prisma.commande.count({ where: { collecteurId, statut: "annulee" } }),
+    ]);
+
+    return {
+      totalCommandes: total,
+      commandesOuvertes: ouvertes,
+      commandesPartiellementFournies: partiellementFournies,
+      commandesCompletees: completees,
+      commandesAcceptees: acceptees,
+      commandesPayees: payees,
+      commandesLivrees: livrees,
+      commandesAnnulees: annulees,
+    };
+  }
+
+
+
   // ============================================================================
   // PRIVATE HELPER METHODS - Séparation des responsabilités
   // ============================================================================
@@ -635,6 +739,7 @@ export class CommandesService {
     };
   }
 
+
   /**
    * Filtre les demandes pertinentes pour un paysan
    * Vérifie si le paysan a des produits correspondants dans le rayon
@@ -652,13 +757,9 @@ export class CommandesService {
           '',
           paysanId,
         );
-        console.log('Commande : lat , lon :', cmd.latitude, cmd.longitude);
         return produitsTrouves.length > 0 ? cmd : null;
       }),
     );
-
-    console.log(results);
-
     return results.filter((r) => r !== null);
   }
 
@@ -731,107 +832,5 @@ export class CommandesService {
       return distance <= rayonKm;
     });
   }
-
-
-
-  // Statistiques des commandes pour un paysan
-  async getOrdersStatsPaysan(paysanId: string) {
-    const [
-      total,
-      ouvertes,
-      partiellementFournies,
-      completees,
-      acceptees,
-      payees,
-      livrees,
-      annulees,
-    ] = await Promise.all([
-      this.prisma.commande.count({
-        where: { lignes: { some: { produit: { paysanId } } } }
-      }),
-
-      this.prisma.commande.count({
-        where: { statut: "ouverte", lignes: { some: { produit: { paysanId } } } }
-      }),
-
-      this.prisma.commande.count({
-        where: { statut: "partiellement_fournie", lignes: { some: { produit: { paysanId } } } }
-      }),
-
-      this.prisma.commande.count({
-        where: { statut: "complete", lignes: { some: { produit: { paysanId } } } }
-      }),
-
-      this.prisma.commande.count({
-        where: { statut: "acceptee", lignes: { some: { produit: { paysanId } } } }
-      }),
-
-      this.prisma.commande.count({
-        where: { statut: "payee", lignes: { some: { produit: { paysanId } } } }
-      }),
-
-      this.prisma.commande.count({
-        where: { statut: "livree", lignes: { some: { produit: { paysanId } } } }
-      }),
-
-      this.prisma.commande.count({
-        where: { statut: "annulee", lignes: { some: { produit: { paysanId } } } }
-      }),
-    ]);
-
-    return {
-      totalCommandes: total,
-      commandesOuvertes: ouvertes,
-      commandesPartiellementFournies: partiellementFournies,
-      commandesCompletees: completees,
-      commandesAcceptees: acceptees,
-      commandesPayees: payees,
-      commandesLivrees: livrees,
-      commandesAnnulees: annulees,
-    };
-  }
-
-
-  // Statistiques des commandes pour un collecteur
-  async getOrdersStatsCollecteur(collecteurId: string) {
-    const [
-      total,
-      ouvertes,
-      partiellementFournies,
-      completees,
-      acceptees,
-      payees,
-      livrees,
-      annulees,
-    ] = await Promise.all([
-      this.prisma.commande.count({ where: { collecteurId } }),
-
-      this.prisma.commande.count({ where: { collecteurId, statut: "ouverte" } }),
-
-      this.prisma.commande.count({ where: { collecteurId, statut: "partiellement_fournie" } }),
-
-      this.prisma.commande.count({ where: { collecteurId, statut: "complete" } }),
-
-      this.prisma.commande.count({ where: { collecteurId, statut: "acceptee" } }),
-
-      this.prisma.commande.count({ where: { collecteurId, statut: "payee" } }),
-
-      this.prisma.commande.count({ where: { collecteurId, statut: "livree" } }),
-
-      this.prisma.commande.count({ where: { collecteurId, statut: "annulee" } }),
-    ]);
-
-    return {
-      totalCommandes: total,
-      commandesOuvertes: ouvertes,
-      commandesPartiellementFournies: partiellementFournies,
-      commandesCompletees: completees,
-      commandesAcceptees: acceptees,
-      commandesPayees: payees,
-      commandesLivrees: livrees,
-      commandesAnnulees: annulees,
-    };
-  }
-
 
 }
