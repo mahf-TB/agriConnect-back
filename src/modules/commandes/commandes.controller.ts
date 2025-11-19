@@ -16,11 +16,15 @@ import { RolesGuard } from '../core/auth/guards/roles.guard';
 import { CreateDemandeDto } from './dto/create-demande.dto';
 import { FilterCommandeDto } from './dto/filter-commande.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { CmdProduitsService } from './cmd-produits/cmd-produits.service';
 
 @UseGuards(JwtAuthGuard)
 @Controller('commandes')
 export class CommandesController {
-  constructor(private readonly cmdService: CommandesService) { }
+  constructor(
+    private readonly cmdService: CommandesService,
+    private readonly cmdProdService: CmdProduitsService,
+  ) {}
 
   @Post()
   createCommande(@Body() dto: CreateOrderDto, @Request() req: any) {
@@ -74,22 +78,48 @@ export class CommandesController {
     return this.cmdService.annulerCommande(collecteurId, commandeId, raison);
   }
 
-      // ==================================================
+  // ==================================================
   // Payer une commande
   // ==================================================
   @Patch(':commandeId/payer')
-  async payerCommande(
-    @Param('commandeId') commandeId: string,
+  async payerCommande(@Param('commandeId') commandeId: string, @Request() req) {
+    const paysanId = req.user.id;
+    return this.cmdService.payerCommande(paysanId, commandeId);
+  }
+
+  // ==================================================
+  // accepter une proposition d'un paysan
+  // ==================================================
+  @UseGuards(RolesGuard)
+  @Roles('collecteur' as any)
+  @Patch(':cmdProduitId/accepter-proposition')
+  async acceperProposition(
+    @Param('cmdProduitId') cmdProduitId: string,
     @Request() req,
   ) {
-    const paysanId = req.user.id;
-    return this.cmdService.payerCommande(
-      paysanId,
-      commandeId
+    return this.cmdProdService.acceptOrRejectedPropositionCommande(
+      cmdProduitId,
+      'acceptee',
     );
   }
 
- // ==================================================
+  // ==================================================
+  // Rejeter une proposition d'un paysan
+  // ==================================================
+  @UseGuards(RolesGuard)
+  @Roles('collecteur' as any)
+  @Patch(':cmdProduitId/rejeter-proposition')
+  async rejeterProposition(
+    @Param('cmdProduitId') cmdProduitId: string,
+    @Request() req,
+  ) {
+    return this.cmdProdService.acceptOrRejectedPropositionCommande(
+      cmdProduitId,
+      'rejetée',
+    );
+  }
+
+  // ==================================================
   // Stats du paysan
   // ==================================================
   @Get('stats/paysan')
@@ -104,5 +134,4 @@ export class CommandesController {
   getOrdersStatsCollecteur(@Request() req) {
     return this.cmdService.getOrdersStatsCollecteur(req.user.id);
   }
-
 }

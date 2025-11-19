@@ -8,5 +8,6 @@ import { NotificationsModule } from 'src/modules/notifications/notifications.mod
   providers: [CmdProduitsService, PrismaService],
   controllers: [CmdProduitsController],
   imports: [NotificationsModule],
+  exports: [CmdProduitsService],
 })
 export class CmdProduitsModule {}

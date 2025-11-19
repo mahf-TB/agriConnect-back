@@ -24,7 +24,6 @@ export class CmdProduitsService {
     private readonly notifyService: NotificationsService,
   ) {}
 
- 
   async getCommandesReciviedByPaysan(
     paysanId: string,
     options: PaginationOptions,
@@ -196,15 +195,32 @@ export class CmdProduitsService {
 
     return this.updateLigneStatut(ligne.id, 'acceptee');
   }
+  // ==================================================
+  // Accepter une Proposition
+  // ==================================================
+  async acceptOrRejectedPropositionCommande(
+    commandeProduitId: string,
+    statut: 'acceptee' | 'partiellement_acceptee' | 'livree' | 'rejetée',
+  ) {
+    // Récupérer la ligne de commande du paysan pour cette commande
+    const ligne = await this.prisma.commandeProduit.findUnique({
+      where: { id: commandeProduitId },
+    });
+
+    if (ligne.statutLigne === 'acceptee') {
+      throw new BadRequestException('Cette ligne est déjà acceptée');
+    }
+    if (ligne.statutLigne === 'rejetée') {
+      throw new BadRequestException('Cette ligne a déjà été refusée');
+    }
+
+    return this.updateLigneStatut(ligne.id, statut);
+  }
 
   // ==================================================
   // Refuser une commande
   // ==================================================
-  async refuserCommande(
-    paysanId: string,
-    commandeId: string,
-    raison?: string,
-  ) {
+  async refuserCommande(paysanId: string, commandeId: string, raison?: string) {
     const ligne = await this.getCommandeProduitForPaysanCommande(
       paysanId,
       commandeId,
