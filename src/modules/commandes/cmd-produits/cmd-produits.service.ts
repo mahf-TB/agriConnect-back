@@ -130,7 +130,7 @@ export class CmdProduitsService {
         // 7️⃣ Déterminer le nouveau statut
         let nouveauStatut = commande.statut;
         if (nouvelleQuantiteTotale >= Number(commande.quantiteTotal)) {
-          nouveauStatut = 'complete'; // à adapter à ton enum CommandeStatut
+          nouveauStatut = 'complete';
         } else {
           nouveauStatut = 'partiellement_fournie';
         }
@@ -205,8 +205,12 @@ export class CmdProduitsService {
     // Récupérer la ligne de commande du paysan pour cette commande
     const ligne = await this.prisma.commandeProduit.findUnique({
       where: { id: commandeProduitId },
+      include: {
+        commande: true,
+      },
     });
 
+    const quantiteTotaleCommande = ligne.commande.quantiteTotal;
     if (ligne.statutLigne === 'acceptee') {
       throw new BadRequestException('Cette ligne est déjà acceptée');
     }
@@ -214,7 +218,7 @@ export class CmdProduitsService {
       throw new BadRequestException('Cette ligne a déjà été refusée');
     }
 
-    return this.updateLigneStatut(ligne.id, statut);
+    return this.updateLigneStatut(ligne.id, statut, quantiteTotaleCommande);
   }
 
   // ==================================================
@@ -230,7 +234,7 @@ export class CmdProduitsService {
       throw new BadRequestException('Cette ligne a déjà été refusée');
     }
 
-    return this.updateLigneStatut(ligne.id, 'rejetée', raison);
+    return this.updateLigneStatut(ligne.id, 'rejetée');
   }
   // ==================================================
   // Refuser une commande
@@ -252,7 +256,7 @@ export class CmdProduitsService {
       throw new BadRequestException('Cette ligne a déjà été refusée');
     }
 
-    return this.updateLigneStatut(ligne.id, 'livree', raison);
+    return this.updateLigneStatut(ligne.id, 'livree');
   }
 
   // ==================================================
@@ -296,6 +300,7 @@ export class CmdProduitsService {
   private async updateLigneStatut(
     commandeProduitId: string,
     statutLigne: 'acceptee' | 'partiellement_acceptee' | 'livree' | 'rejetée',
+    quantiteTotal?: any,
     raison?: string,
   ) {
     return this.prisma.$transaction(async (tx) => {
@@ -312,6 +317,12 @@ export class CmdProduitsService {
         where: { commandeId: updatedLigne.commandeId },
       });
 
+      // Quantité totale réelle de toutes les lignes
+      const totalQuantiteLignes = lignes.reduce(
+        (acc, ligne) => acc + Number(ligne.quantiteAccordee),
+        0,
+      );
+
       const allAccepted = lignes.every(
         (l) =>
           l.statutLigne === 'acceptee' ||
@@ -321,7 +332,7 @@ export class CmdProduitsService {
       const allDelivred = lignes.every((l) => l.statutLigne === 'livree');
 
       // 3️⃣ Mettre à jour le statut global de la commande si nécessaire
-      if (allAccepted) {
+      if (allAccepted && (totalQuantiteLignes === quantiteTotal)) {
         await tx.commande.update({
           where: { id: updatedLigne.commandeId },
           data: { statut: 'acceptee' },
@@ -331,7 +342,7 @@ export class CmdProduitsService {
           where: { id: updatedLigne.commandeId },
           data: { statut: 'annulee' },
         });
-      } else if (allDelivred) {
+      } else if (allDelivred && (totalQuantiteLignes === quantiteTotal)) {
         await tx.commande.update({
           where: { id: updatedLigne.commandeId },
           data: { statut: 'livree' },
